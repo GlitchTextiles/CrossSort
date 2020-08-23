@@ -10,13 +10,10 @@
  *
  */
 
-import java.awt.Frame;
-import java.awt.BorderLayout;
+import java.util.*;
 import controlP5.*;
 
-private ControlP5 cp5;
-
-ControlFrame cf;
+ControlFrame gui;
 
 LFO[] lfos;
 
@@ -97,21 +94,20 @@ int iterations=0;
 float[] inc = new float[6];
 float[] phase = new float[6];
 
-void setup() {
-  setScreenSize(screen_width, screen_height);
-  if (frame != null) {
-    frame.setResizable(true);
-  }
+int ControlFrame_w = 400;
+int ControlFrame_h = 550;
+int GUILocationX = 0;
+int GUILocationY = 10;
 
-  cp5 = new ControlP5(this);
+void setup() {
+  size(10 ,10);
+  setScreenSize(screen_width, screen_height);
   frameRate(30);
   // by calling function addControlFrame() a
   // new frame is created and an instance of class
   // ControlFrame is instanziated.
-  cf = addControlFrame("GUI", 1200, 800);
-
-  // add Controllers to the 'extra' Frame inside 
-  // the ControlFrame class setup() method below.
+  //setup GUI
+  gui = new ControlFrame(this, GUILocationX, GUILocationY, ControlFrame_w, ControlFrame_h);
 
   src = createImage(screen_width, screen_height, RGB);
   buffer = createImage(screen_width, screen_height, RGB);
@@ -898,19 +894,18 @@ void saveData(String thePath) {
 
 
 
-public int sketchWidth() {
-  return displayWidth;
-}
+//public int sketchWidth() {
+//  return displayWidth;
+//}
 
-public int sketchHeight() {
-  return displayHeight;
-}
+//public int sketchHeight() {
+//  return displayHeight;
+//}
 
-public String sketchRenderer() {
-  return P2D;
-}
+//public String sketchRenderer() {
+//  return P2D;
+//}
 
 void setScreenSize(int _width, int _height) {
-  frame.setSize(_width, _height+22);
+  surface.setSize(_width, _height+22);
 }
-
