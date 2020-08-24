@@ -94,18 +94,18 @@ int iterations=0;
 float[] inc = new float[6];
 float[] phase = new float[6];
 
-int ControlFrame_w = 400;
-int ControlFrame_h = 550;
+int ControlFrame_w = 800;
+int ControlFrame_h = 400;
 int GUILocationX = 0;
 int GUILocationY = 10;
 
 void setup() {
-  size(10 ,10);
-  setScreenSize(screen_width, screen_height);
+  size(10, 10);
+
+  surface.setSize(screen_width, screen_height);
+
   frameRate(30);
-  // by calling function addControlFrame() a
-  // new frame is created and an instance of class
-  // ControlFrame is instanziated.
+
   //setup GUI
   gui = new ControlFrame(this, GUILocationX, GUILocationY, ControlFrame_w, ControlFrame_h);
 
@@ -113,10 +113,9 @@ void setup() {
   buffer = createImage(screen_width, screen_height, RGB);
   output = createImage(screen_width, screen_height, RGB);
   preview = createImage(screen_width, screen_height, RGB);
-  //loadData("facebook-1080p-grey.jpg");
   lfos = new LFO[6];
-  for(int i = 0 ; i < lfos.length ; i++){
-  lfos[i] = new LFO();
+  for (int i = 0; i < lfos.length; i++) {
+    lfos[i] = new LFO(random(1));
   }
 }
 
@@ -131,15 +130,19 @@ void draw() {
     //y(t) = A\sin(2 \pi f t + \varphi) = A\sin(\omega t + \varphi)
     //red automation math
     if (automate) {    
-      
-//        println(int(256*((lfo_01.update()/2)+0.5)));
-        r_pos = int(255*((lfos[0].update(inc[0], PI*(phase[0])-PI/2)/2)+0.5));
-        r_neg = int(255*((lfos[1].update(inc[1], PI*(phase[1])-PI/2)/2)+0.5));
-        g_pos = int(255*((lfos[2].update(inc[2], PI*(phase[2])-PI/2)/2)+0.5));
-        g_neg = int(255*((lfos[3].update(inc[3], PI*(phase[3])-PI/2)/2)+0.5));
-        b_pos = int(255*((lfos[4].update(inc[4], PI*(phase[4])-PI/2)/2)+0.5));
-        b_neg = int(255*((lfos[5].update(inc[5], PI*(phase[5])-PI/2)/2)+0.5));
-        
+
+      //      println(int(256*((lfo_01.update()/2)+0.5)));
+      for (int i = 0 ; i < lfos.length; ++i){
+        lfos[i].setPhase(phase[i]);
+        lfos[i].setRate(inc[i]);
+      }
+      r_pos = int(256*(lfos[0].update()/2+0.5));
+      r_neg = int(256*(lfos[1].update()/2+0.5));
+      g_pos = int(256*(lfos[2].update()/2+0.5));
+      g_neg = int(256*(lfos[3].update()/2+0.5));
+      b_pos = int(256*(lfos[4].update()/2+0.5));
+      b_neg = int(256*(lfos[5].update()/2+0.5));
+
       if (rand) {
         r_pos = int(random(256));
         r_neg = int(random(256));
@@ -153,11 +156,11 @@ void draw() {
     makeParameters();
 
     if (quick) {
-      loadPreview(buffer);
+      preview = buffer.copy();
       //    thresholdSort(preview.pixels, positive_threshold, negative_threshold, sort_mode, threshold_mode);
       sortPixels(preview, positive_threshold, negative_threshold, sort_mode, threshold_mode);
     } else {
-      for(int i = 0 ; i < iterations ; i++){
+      for (int i = 0; i < iterations; i++) {
         sortPixels(preview, positive_threshold, negative_threshold, sort_mode, threshold_mode);
       }
     }
@@ -219,9 +222,10 @@ void shift(PImage _image, int _direction) {
   int start;
   int end;
   int index;
-
   int _random;
+
   switch(_direction) {
+    
   case 0:
     index = 0;
     while (index < _image.height) {
@@ -245,7 +249,6 @@ void shift(PImage _image, int _direction) {
 
   case 1:
     index=0;
-
     while (index < _image.width) {
       temp = new int[_image.height];
       start = index;
@@ -288,14 +291,16 @@ PImage sortPixels (PImage _image, color _pos, color _neg, int _sort_mode, int _t
   int index = 0;
   int x = 0;
   int y = 0; 
-
+  
+  _image.loadPixels();
+  
   if (diagonal_a) {
     if (!color_mode_x) {
       for (int i = 0; i < _image.height; i++) {
         index = 0;
         x = 0;
         y = i;
-        if(i < _image.width){
+        if (i < _image.width) {
           px_buffer = new color[i+1];
         } else {
           px_buffer = new color[_image.width];
@@ -323,7 +328,7 @@ PImage sortPixels (PImage _image, color _pos, color _neg, int _sort_mode, int _t
         index=0;
         x=i;
         y=_image.height-1;
-        if(_image.width > _image.height && i < _image.width - _image.height){
+        if (_image.width > _image.height && i < _image.width - _image.height) {
           px_buffer = new color[height];
         } else {
           px_buffer = new color[width - (x)];
@@ -356,7 +361,7 @@ PImage sortPixels (PImage _image, color _pos, color _neg, int _sort_mode, int _t
         x = 0;
         y = i;
 
-        if(i < _image.width){
+        if (i < _image.width) {
           r_buffer = new color[i+1];
           g_buffer = new color[i+1];
           b_buffer = new color[i+1];
@@ -397,8 +402,8 @@ PImage sortPixels (PImage _image, color _pos, color _neg, int _sort_mode, int _t
         index=0;
         x=i;
         y=_image.height-1;
-        
-        if(_image.width > _image.height && i < _image.width - _image.height){
+
+        if (_image.width > _image.height && i < _image.width - _image.height) {
           r_buffer = new color[height];
           g_buffer = new color[height];
           b_buffer = new color[height];
@@ -407,7 +412,7 @@ PImage sortPixels (PImage _image, color _pos, color _neg, int _sort_mode, int _t
           g_buffer = new color[width - (x)];
           b_buffer = new color[width - (x)];
         }
-        
+
         while (x < _image.width && y >= 0 && index < r_buffer.length) {
           r_buffer[index] = _image.pixels[y*_image.width+x] >> 16 & 0xFF;
           g_buffer[index] = _image.pixels[y*_image.width+x] >> 8 & 0xFF;
@@ -435,18 +440,18 @@ PImage sortPixels (PImage _image, color _pos, color _neg, int _sort_mode, int _t
   }
 
   if (diagonal_b) {//  starting from 0, height-1 to width-1, 0 ; picks diagonal pixels from bottom right to upper left  
-    
+
     for (int i = 0; i < _image.width; i++) {
       index = 0;
       x = i;
       y = _image.height-1;
-      
-      if(_image.width > _image.height && i >= _image.height){
+
+      if (_image.width > _image.height && i >= _image.height) {
         px_buffer = new color[_image.height];
       } else {
         px_buffer= new color[i+1];
       }
-      
+
       while ( x >= 0 && y >=0 && index < px_buffer.length) {
         px_buffer[index]=_image.pixels[y*_image.width+x];
         _image.pixels[y*_image.width+x]=0;
@@ -470,15 +475,15 @@ PImage sortPixels (PImage _image, color _pos, color _neg, int _sort_mode, int _t
 
     for (int i = 1; i < _image.height; i++) {
       index = 0;
-      
+
       x = _image.width - 1;
       y = _image.height - 1 - i;
-      if(_image.height > _image.width && i < _image.width -1 ){
+      if (_image.height > _image.width && i < _image.width -1 ) {
         px_buffer = new color[_image.width];
       } else {
         px_buffer = new color[_image.height - i];
       }
-      
+
       while (x >= 0 && y >= 0 && index < px_buffer.length) {
         px_buffer[index]=_image.pixels[y*_image.width+x];
         x--;
@@ -575,7 +580,7 @@ PImage sortPixels (PImage _image, color _pos, color _neg, int _sort_mode, int _t
     }
   }
 
-
+  _image.updatePixels();
   return _image;
 }
 
@@ -744,7 +749,6 @@ color[] pixelSort(color[] _pixelArray, int _sort_mode) {
 
       break;
     case 3:
-
       for (int i = _pixelArray.length-2; i >= 0; i--) {
         if (brightness(_pixelArray[i]) > brightness(_pixelArray[i+1])) {
           _pixelArray = swapPixels(_pixelArray, i+1, i);
@@ -819,7 +823,6 @@ int[] movePixel(int[] _pixelArray, int _index, int _spaces, int _direction) {
     }
     break;
   }
-
   return _pixelArray;
 }
 
@@ -837,24 +840,6 @@ void makeParameters() {
   negative_threshold = 255 << 24 | r_neg << 16 | g_neg << 8 | b_neg;
 }
 
-
-void loadBuffer(PImage _image) {
-  for (int i = 0; i < buffer.pixels.length; i++) {
-    buffer.pixels[i]=_image.pixels[i];
-  }
-}
-
-void loadPreview(PImage _image) {
-  for (int i = 0; i < preview.pixels.length; i++) {
-    preview.pixels[i]=_image.pixels[i];
-  }
-}
-
-void loadOutput(PImage _image) {
-  for (int i = 0; i < output.pixels.length; i++) {
-    output.pixels[i]=_image.pixels[i];
-  }
-}
 
 void displayPreview() {
   preview.updatePixels();
@@ -879,33 +864,12 @@ void displaySource() {
 
 void loadData(String thePath) {
   src = loadImage(thePath);
-  buffer = new PImage(src.width, src.height);
-  output = new PImage(src.width, src.height);
-  preview = new PImage(src.width, src.height);
-  loadBuffer(src);
-  loadPreview(buffer);
-  loadOutput(buffer);
-  setScreenSize(src.width, src.height);
+  buffer = src.copy();
+  output = src.copy();
+  preview = src.copy();
+  surface.setSize(src.width, src.height);
 }
 
 void saveData(String thePath) {
-  buffer.save(thePath+".TIF");
-}
-
-
-
-//public int sketchWidth() {
-//  return displayWidth;
-//}
-
-//public int sketchHeight() {
-//  return displayHeight;
-//}
-
-//public String sketchRenderer() {
-//  return P2D;
-//}
-
-void setScreenSize(int _width, int _height) {
-  surface.setSize(_width, _height+22);
+  buffer.save(thePath+".PNG");
 }

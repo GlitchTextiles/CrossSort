@@ -1,66 +1,62 @@
-class LFO {
-  float theta;
-  float phi;
-  float freq;
-  float inc;
-  
-  LFO(float _inc, float _theta, float _phi){
-    inc = _inc;
-    theta = _theta;
-    phi = _phi;
-    freq = 1;
+public class LFO {
+
+  private float angle=0.0f, phase=0.0f, rate=0.0f;
+
+  public LFO(float _rate, float _angle, float _phase) {
+    this.rate = _rate;
+    this.angle = _angle;
+    this.phase = _phase;
   }
-  
-  LFO(float _inc, float _phi){
-    inc = _inc;
-    theta = 0;
-    phi = _phi;
-    freq = 1;
+
+  public LFO(float _rate, float _phase) {
+    this.rate = _rate;
+    this.angle = 0;
+    this.phase = _phase;
   }
-  
-  LFO(float _inc){
-    freq = 1;
-    phi = 0;
-    theta = 0;
-    inc = _inc;
+
+  public LFO(float _rate) {
+    this.phase = 0;
+    this.angle = 0;
+    this.rate = _rate;
   }
-  
-  LFO(){
-    theta = 0;
-    phi = 0;
-    freq = 1;
-    inc = random(1);
-  }
-  
-  float update(float _inc, float _phase){
-    inc = _inc;
-    phi = _phase;
-    float output = sin(2*PI*freq*(theta/255)+phi);
-    theta+=inc;
-    theta%=256;
+
+  public float update() {
+    float output = this.math(angle, phase);
+    this.angle=wrap(this.angle+this.rate);
     return output;
   }
+
+  public float math(float _angle, float _phase) {
+    return sin(2*PI*_angle+_phase);
+  }
+
+
+  public void reset() {
+    this.rate = 0;
+    this.angle = 0;
+    this.phase = 0;
+  }
+
+  public void setAngle(float _angle) {
+    this.angle = this.wrap(_angle);
+    }
   
-  float update(float _inc){
-    inc = _inc;
-    float output = sin(2*PI*freq*(theta/255)+phi);
-    theta+=inc;
-    theta%=256;
-    return output;
+  public void setPhase(float _phase) {
+    this.phase=this.wrap(_phase);
   }
   
-  float update(){
-    float output = sin(2*PI*freq*(theta/255)+phi);
-    theta+=inc;
-    theta%=256;
-    return output;
+  public void setRate(float _rate) {
+    this.rate=this.wrap(_rate);
   }
-  
- void reset(){
-    inc = 0;
-    theta = 0;
-    phi = 0;
-    freq = 1;
+
+  public float wrap(float _value) { // wraps values around range 0-1
+
+    if (_value < 0) {
+      return (_value % 1) + 1;
+    } else {
+      return (_value % 1);
+    }
+    
   }
   
 }

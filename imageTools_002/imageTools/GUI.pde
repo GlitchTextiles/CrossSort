@@ -350,49 +350,43 @@ public class ControlFrame extends PApplet {
     cp5.addSlider("r_pos_inc")
       .setPosition(5, 250)
       .setSize(200, 20)
-      .setRange(-5, 5)
+      .setRange(-0.01, 0.01)
       .setLabel("r_pos_inc")
-      .plugTo(parent, "inc[0]")
       ;
 
     cp5.addSlider("r_neg_inc")
       .setPosition(305, 250)
       .setSize(200, 20)
-      .setRange(-5, 5)
+      .setRange(-0.01, 0.01)
       .setLabel("r_neg_inc")
-      .plugTo(parent, "inc[1]")
       ;
 
     cp5.addSlider("g_pos_inc")
       .setPosition(5, 275)
       .setSize(200, 20)
-      .setRange(-5, 5)
+      .setRange(-0.01, 0.01)
       .setLabel("g_pos_inc")
-      .plugTo(parent, "inc[2]")
       ;
 
     cp5.addSlider("g_neg_inc")
       .setPosition(305, 275)
       .setSize(200, 20)
-      .setRange(-5, 5)
+      .setRange(-0.01, 0.01)
       .setLabel("g_neg_inc")
-      .plugTo(parent, "inc[3]")
       ;
 
     cp5.addSlider("b_pos_inc")
       .setPosition(5, 300)
       .setSize(200, 20)
-      .setRange(-5, 5)
+      .setRange(-0.01, 0.01)
       .setLabel("b_pos_inc")
-      .plugTo(parent, "inc[4]")
       ;
 
     cp5.addSlider("b_neg_inc")
       .setPosition(305, 300)
       .setSize(200, 20)
-      .setRange(-5, 5)
+      .setRange(-0.01, 0.01)
       .setLabel("b_neg_inc")
-      .plugTo(parent, "inc[5]")
       ;
 
     // phase adjustments
@@ -402,7 +396,6 @@ public class ControlFrame extends PApplet {
       .setSize(200, 20)
       .setRange(0, 1)
       .setLabel("r_pos_phase")
-      .plugTo(parent, "phase[0]")
       ;
 
     cp5.addSlider("r_neg_phase")
@@ -410,7 +403,6 @@ public class ControlFrame extends PApplet {
       .setSize(200, 20)
       .setRange(0, 1)
       .setLabel("r_neg_phase")
-      .plugTo(parent, "phase[1]")
       ;
 
     cp5.addSlider("g_pos_phase")
@@ -418,7 +410,6 @@ public class ControlFrame extends PApplet {
       .setSize(200, 20)
       .setRange(0, 1)
       .setLabel("g_pos_phase")
-      .plugTo(parent, "phase[2]")
       ;
 
     cp5.addSlider("g_neg_phase")
@@ -426,7 +417,6 @@ public class ControlFrame extends PApplet {
       .setSize(200, 20)
       .setRange(0, 1)
       .setLabel("g_neg_phase")
-      .plugTo(parent, "phase[3]")
       ;
 
     cp5.addSlider("b_pos_phase")
@@ -434,7 +424,6 @@ public class ControlFrame extends PApplet {
       .setSize(200, 20)
       .setRange(0, 1)
       .setLabel("b_pos_phase")
-      .plugTo(parent, "phase[4]")
       ;
 
     cp5.addSlider("b_neg_phase")
@@ -442,7 +431,6 @@ public class ControlFrame extends PApplet {
       .setSize(200, 20)
       .setRange(0, 1)
       .setLabel("b_neg_phase")
-      .plugTo(parent, "phase[5]")
       ;    
 
     //iterations
@@ -522,9 +510,9 @@ public class ControlFrame extends PApplet {
   }
 
   public void reset() {
-    loadBuffer(src);
-    loadPreview(buffer);
-    loadOutput(buffer);
+    buffer=src.copy();
+    preview=src.copy();
+    output=src.copy();
   }
 
 
