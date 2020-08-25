@@ -42,7 +42,7 @@ public class LFO {
     }
   
   public void setPhase(float _phase) {
-    this.phase=this.wrap(_phase);
+    this.phase=_phase;
   }
   
   public void setRate(float _rate) {

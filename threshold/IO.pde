@@ -7,7 +7,10 @@ public void inputSelection(File input) {
     println("Window was closed or the user hit cancel.");
   } else {
     println("User selected " + input.getAbsolutePath());
-    image=loadImage(input.getAbsolutePath());
+    source=loadImage(input.getAbsolutePath());
+    buffer=source.copy();
+    surface.setSize(source.width, source.height);  
+    redraw();
   }
 }
 
@@ -20,6 +23,6 @@ public void outputSelection(File output) {
     println("Window was closed or the user hit cancel.");
   } else {
     println("User selected " + output.getAbsolutePath());
-    image.save(output.getAbsolutePath());
+    buffer.save(output.getAbsolutePath());
   }
 }

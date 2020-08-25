@@ -125,10 +125,6 @@ void draw() {
   //begin process
   if (play) {
 
-    //    sortSlope();
-
-    //y(t) = A\sin(2 \pi f t + \varphi) = A\sin(\omega t + \varphi)
-    //red automation math
     if (automate) {    
 
       //      println(int(256*((lfo_01.update()/2)+0.5)));
@@ -194,6 +190,9 @@ void draw() {
     displayOutput();
     break;
   }
+  
+  text(frameRate, 20,20);
+  
 }
 
 

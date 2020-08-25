@@ -6,5 +6,13 @@ void keyReleased(){
     case 's':
     save_file();
     break;
+    case 'l':
+    mode++;
+    mode%=6;
+    redraw();
+    case 'r':
+    reverse=!reverse;
+    redraw();
+    break;
   }
 }
