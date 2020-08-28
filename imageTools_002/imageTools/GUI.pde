@@ -1,19 +1,4 @@
-//ControlFrame addControlFrame(String theName, int theWidth, int theHeight) {
-//  Frame f = new Frame(theName);
-//  ControlFrame p = new ControlFrame(this, theWidth, theHeight);
-//  f.add(p);
-//  p.init();
-//  f.setTitle(theName);
-//  f.setSize(p.w, p.h);
-//  f.setLocation(200, 100);
-//  f.setResizable(false);
-//  f.setVisible(true);
-//  return p;
-//}
 
-// the ControlFrame class extends PApplet, so we 
-// are creating a new processing applet inside a
-// new frame with a controlP5 object loaded
 public class ControlFrame extends PApplet {
 
   controlP5.Label label;
