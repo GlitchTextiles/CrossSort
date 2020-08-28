@@ -1,79 +1,93 @@
-class Pixel {
+private class Pixel {
   int x;
   int y;
   color c;
   
-  Pixel(int _x, int _y, color _c){
+  public Pixel(int _x, int _y, color _c){
     x=_x;
     y=_y;
     c=_c;
   }
   
-  boolean isGreater(Pixel _px){
-    return c > _px.c;
+  public boolean isGreater(Pixel _px){
+    return this.c > _px.getColor();
   }
   
-  boolean hIsGreater(Pixel _px){
-    return hue(c) > hue(_px.c);
+  public boolean hIsGreater(Pixel _px){
+    return hue(this.c) > hue(_px.getColor());
   }
   
-  boolean sIsGreater(Pixel _px){
-    return saturation(c) > saturation(_px.c);
+  public boolean sIsGreater(Pixel _px){
+    return saturation(this.c) > saturation(_px.getColor());
   }
   
-  boolean vIsGreater(Pixel _px){
-   return brightness(c) > brightness(_px.c);
+  public boolean vIsGreater(Pixel _px){
+   return brightness(this.c) > brightness(_px.getColor());
   }
   
-  boolean rIsGreater(Pixel _px){
-    return red(c) > red(_px.c);
+  public boolean rIsGreater(Pixel _px){
+    return red(this.c) > red(_px.getColor());
   }
   
-  boolean gIsGreater(Pixel _px){
-    return green(c) > green(_px.c);
+  public boolean gIsGreater(Pixel _px){
+    return green(this.c) > green(_px.getColor());
   }
   
-  boolean bIsGreater(Pixel _px){
-    return blue(c) > blue(_px.c);
+  public boolean bIsGreater(Pixel _px){
+    return blue(this.c) > blue(_px.getColor());
   }
   
-  boolean isGreater(color _c){
-    return c > _c;
+  public boolean isGreater(color _c){
+    return this.c > _c;
   }
   
-  boolean hIsGreater(color _c){
-    return hue(c) > hue(_c);
+  public boolean hIsGreater(color _c){
+    return hue(this.c) > red(_c);
   }
   
-  boolean sIsGreater(color _c){
-    return saturation(c) > saturation(_c);
+  public boolean sIsGreater(color _c){
+    return saturation(this.c) > red(_c);
   }
   
-  boolean vIsGreater(color _c){
-    return brightness(c) > brightness(_c);
+  public boolean vIsGreater(color _c){
+    return brightness(this.c) > red(_c);
   }
   
-  boolean rIsGreater(color _c){
-    return red(c) > red(_c);
+  public boolean rIsGreater(color _c){
+    return red(this.c) > red(_c);
   }
   
-  boolean gIsGreater(color _c){
-    return green(c) > green(_c);
+  public boolean gIsGreater(color _c){
+    return green(this.c) > green(_c);
   }
   
-  boolean bIsGreater(color _c){
-    return blue(c) > blue(_c);
+  public boolean bIsGreater(color _c){
+    return blue(this.c) > blue(_c);
   }
   
-  Pixel copy(Pixel _px){
-    x = _px.x;
-    y = _px.y;
-    c = _px.c;
+  public Pixel get(){
     return this;
   }
   
-  PVector location(){
-    return new PVector(x,y); 
+  public Pixel copy(){
+    return new Pixel(this.x, this.y, this.c);
   }
   
+  public void set(Pixel _px){
+    this.x = _px.x;
+    this.y = _px.y;
+    this.c = _px.c;
+  }
+  
+  public int getX(){
+    return this.x;
+  }
+  
+  public int getY(){
+    return this.y;
+  }
+  
+  public color getColor(){
+   return this.c;
+  }
 }
