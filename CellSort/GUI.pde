@@ -33,11 +33,12 @@ public class ControlFrame extends PApplet {
   int thresholdSlidersSpacingX = 30;
   int thresholdSlidersSpacingY = 20;
 
+  Toggle[][] neighborToggles = new Toggle[3][3]; //holds GUI cp5 Toggle objects for cell logic
   Range threshold;
   RadioButton raster_direction;
   RadioButton compare_mode;
   RadioButton threshold_mode;
-  
+
   public ControlFrame(PApplet _parent, int _w, int _h) {
     super();   
     parent = _parent;
@@ -78,8 +79,12 @@ public class ControlFrame extends PApplet {
       .addItem("TBRL", 1)
       .addItem("BTLR", 2)
       .addItem("BTRL", 3)
+      .addItem("LRTB", 4)
+      .addItem("RLTB", 5)
+      .addItem("LRBT", 6)
+      .addItem("RLBT", 7)
       ;
-      
+
     //radio controls for the compare and threshold logic 
     compare_mode = cp5.addRadioButton("compare_mode")
       .setSize(radiosW, radiosH)
@@ -187,10 +192,10 @@ public class ControlFrame extends PApplet {
       .snapToTickMarks(true)
       .showTickMarks(false)
       ;
-      
-      compare_mode.activate(0);
-      threshold_mode.activate(0);
-      raster_direction.activate(0);
+
+    compare_mode.setValue(0).activate(0);
+    threshold_mode.setValue(0).activate(0);
+    raster_direction.setValue(0).activate(0);
   }
 
   void draw() {
@@ -200,8 +205,24 @@ public class ControlFrame extends PApplet {
     iterations = int (cp5.getValue("iterationSlider"));
     textAlign(LEFT, BOTTOM);
     text("Iterations: "+nf(iterationCount), 800, 30);
+    updateRules();
   }
 
+  public void updateRules() {
+    for (int x = 0; x < 3; x++) {
+      for (int y = 0; y < 3; y++) {
+        if (!(x==1 && y==1)) rules[x][y] = this.neighborToggles[x][y].getState();
+      }
+    }
+  }
+  
+  public void clearRules() {
+    for (int x = 0; x < 3; x++) {
+      for (int y = 0; y < 3; y++) {
+        if (!(x==1 && y==1)) this.neighborToggles[x][y].setValue(0);
+      }
+    }
+  }
   //GUI callbacks
 
   public void playToggle(boolean _val) {
@@ -334,55 +355,47 @@ public class ControlFrame extends PApplet {
     switch(key) {
     case '-':
       threshold_mode.activate((int(threshold_mode.getValue())-1+threshold_mode.getArrayValue().length)%threshold_mode.getArrayValue().length);
-    break;
+      break;
     case '=':
       threshold_mode.activate((int(threshold_mode.getValue())+1)%threshold_mode.getArrayValue().length);
-    break;
+      break;
     case ',':
       compare_mode.activate((int(compare_mode.getValue())-1+compare_mode.getArrayValue().length)%compare_mode.getArrayValue().length);
-    break;
+      break;
     case '.':
       compare_mode.activate((int(compare_mode.getValue())+1)%compare_mode.getArrayValue().length);
-    break;
-      case '[':
+      break;
+    case '[':
       raster_direction.activate((int(raster_direction.getValue())-1+raster_direction.getArrayValue().length)%raster_direction.getArrayValue().length);
-    break;
+      break;
     case ']':
       raster_direction.activate((int(raster_direction.getValue())+1)%raster_direction.getArrayValue().length);
-    break;
-    
-    
+      break;
+
+
     case '1':
       neighborToggles[0][0].setValue(!neighborToggles[0][0].getState());
-      println("rules[0][0] = "+neighborToggles[0][0].getState());
       break;
     case '2':
       neighborToggles[1][0].setValue(!neighborToggles[1][0].getState());
-      println("rules[1][0] = "+neighborToggles[1][0].getState());    
       break;
     case '3':
       neighborToggles[2][0].setValue(!neighborToggles[2][0].getState());
-      println("rules[2][0] = "+neighborToggles[2][0].getState());    
       break;
     case '4':
       neighborToggles[0][1].setValue(!neighborToggles[0][1].getState());
-      println("rules[0][1] = "+neighborToggles[0][1].getState());    
       break;
     case '6':
       neighborToggles[2][1].setValue(!neighborToggles[2][1].getState());
-      println("rules[2][1] = "+neighborToggles[2][1].getState());    
       break;
     case '7':
       neighborToggles[0][2].setValue(!neighborToggles[0][2].getState());
-      println("rules[0][2] = "+neighborToggles[0][2].getState());    
       break;
     case '8':
       neighborToggles[1][2].setValue(!neighborToggles[1][2].getState());
-      println("rules[1][2] = "+neighborToggles[1][2].getState());    
       break;
     case '9':
       neighborToggles[2][2].setValue(!neighborToggles[2][2].getState());
-      println("rules[2][2] = "+neighborToggles[2][2].getState());    
       break;
 
     case 'o':
@@ -399,7 +412,7 @@ public class ControlFrame extends PApplet {
       }  
       break;
     case 'q':
-      initRules(); 
+      clearRules(); 
       break;
     case 'w': // w toggles edge wrap mode
       if (wrap) {

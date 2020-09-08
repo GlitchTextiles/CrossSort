@@ -73,10 +73,11 @@ private class Pixel {
     return new Pixel(this.x, this.y, this.c);
   }
   
-  public void set(Pixel _px){
+  public Pixel set(Pixel _px){
     this.x = _px.x;
     this.y = _px.y;
     this.c = _px.c;
+    return this;
   }
   
   public int getX(){

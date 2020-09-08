@@ -30,16 +30,43 @@ void cellSort(PImage _image) {
       }
     }
     break;
+  case 4: // left to right, top to bottom
+    for (int x = 0; x < _image.width; x++) {
+      for (int y = 0; y < _image.height; y++) {
+        swapPixels(_image, x, y);
+      }
+    }
+    break;
+  case 5: // right to left, top to bottom
+    for (int x = _image.width-1; x >=0; x--) {
+      for (int y = 0; y < _image.height; y++) {
+        swapPixels(_image, x, y);
+      }
+    }
+  case 6: // left to right , bottom to top 
+    for (int x = 0; x < _image.width; x++) {
+      for (int y = _image.height-1; y >= 0; y--) {
+        swapPixels(_image, x, y);
+      }
+    }
+    break;
+  case 7: // right to left, bottom to top
+    for (int x = _image.width-1; x >=0; x--) {
+      for (int y = _image.height-1; y >= 0; y--) {
+        swapPixels(_image, x, y);
+      }
+    }
+    break;
   }
 
   _image.updatePixels();
 }
 
 void swapPixels(PImage _image, int _x, int _y) {
-  
+
   Pixel current = new Pixel(_x, _y, _image.pixels[_y*_image.width+_x]);
-  Pixel neighbor = current.copy();
-  Pixel swap = current.copy();
+  Pixel neighbor = current.get();
+  Pixel swap = current.get();
 
   if (threshold(current, min, max, thresholdMode)) {
 
@@ -61,10 +88,8 @@ void swapPixels(PImage _image, int _x, int _y) {
           if ( isInBounds(_image, xn, yn) ) { // if not wrapped, this ignores neighbor coordinates beyond image boundaries
             neighbor = new Pixel(xn, yn, _image.pixels[yn*_image.width+xn]);
             // comparison logic
-            if (compare(current, neighbor, compareMode) && threshold(neighbor, min, max, thresholdMode)) {
-              if (compare(swap, neighbor, compareMode)) {
-                swap = neighbor.copy();
-              }
+            if (compare(current, neighbor, compareMode) && threshold(neighbor, min, max, thresholdMode) && compare(swap, neighbor, compareMode)) {
+              swap = neighbor.get();
             }
           }
         }
