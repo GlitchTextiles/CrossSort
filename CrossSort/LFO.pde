@@ -1,7 +1,8 @@
 public class LFO {
 
   private float angle=0.0f, phase=0.0f, rate=0.0f;
-
+  private float min,max;
+  
   public LFO(float _rate, float _angle, float _phase) {
     this.rate = _rate;
     this.angle = _angle;
@@ -27,7 +28,7 @@ public class LFO {
   }
 
   public float math(float _angle, float _phase) {
-    return sin(2*PI*_angle+_phase);
+    return map(sin(2*PI*_angle+_phase),-1,1,min,max);
   }
 
 

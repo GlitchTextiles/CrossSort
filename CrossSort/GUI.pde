@@ -49,16 +49,13 @@ public class ControlFrame extends PApplet {
       .setSize(20, 20)
       .setLabel("P")
       .plugTo(parent, "play")
-      .setValue(false);
     ;
 
 
-    cp5.addToggle("record")
+    cp5.addToggle("record_sequence")
       .setPosition(105, 5)
       .setSize(20, 20)
       .setLabel("R")
-      .plugTo(parent, "record")
-      .setValue(false);
     ;
 
     cp5.addToggle("quick")
@@ -66,7 +63,6 @@ public class ControlFrame extends PApplet {
       .setSize(20, 20)
       .setLabel("Q")
       .plugTo(parent, "quick")
-      .setValue(true);
     ;
 
     cp5.addButton("resetLFO")
@@ -524,8 +520,27 @@ public class ControlFrame extends PApplet {
     } else {
       println("User selected " + output.getAbsolutePath());
       //      saveData(output.getAbsolutePath());
-      thePath = output.getAbsolutePath();
-      capture_count = 0;
+      stillPath = output.getAbsolutePath();
+    }
+  }
+
+  public void record_sequence(boolean value) {
+    if (value){
+    selectFolder("Select a file to process:", "outputFolderSelection");
+    } else {
+      record=false;
+    }
+    
+  }
+
+  void outputFolderSelection(File output) {
+    if (output == null) {
+      println("Window was closed or the user hit cancel.");
+    } else {
+      println("User selected " + output.getAbsolutePath());
+      sequencePath = output.getAbsolutePath();
+      record = true;
+      sequenceIndex=0;
     }
   }
 }

@@ -7,7 +7,9 @@ ControlFrame gui;
 LFO[] lfos;
 
 
-String thePath;
+String inputPath;
+String sequencePath;
+String stillPath;
 boolean diagonal_a = false;
 boolean diagonal_b = false;
 
@@ -77,7 +79,7 @@ int shift_amt_x;
 int shift_amt_y;
 
 int display_mode = 2; //0 = source, 1 = buffer, 2 = preview, 3 = output;
-int capture_count = 0;
+int sequenceIndex = 0;
 int iterations=0;
 
 float[] inc = new float[6];
@@ -156,14 +158,13 @@ void draw() {
       shift(preview, 1);
     }
     if (record) {
-      capture_count++;
-      if (thePath != null) {
-        preview.save(thePath+"-"+nfs(capture_count, 4)+".png");
+      if (sequencePath != null) {
+        preview.save(sequencePath+"-"+nfs(sequenceIndex, 4)+".png");
+      sequenceIndex++;
       }
     }
   }
   //end process
-
 
   switch(display_mode) {
   case 0:
@@ -179,9 +180,6 @@ void draw() {
     displayOutput();
     break;
   }
-  
-  text(frameRate, 20,20);
-  
 }
 
 
@@ -850,14 +848,14 @@ void displaySource() {
 }
 
 
-void loadData(String thePath) {
-  src = loadImage(thePath);
+void loadData(String _path) {
+  src = loadImage(_path);
   buffer = src.copy();
   output = src.copy();
   preview = src.copy();
   surface.setSize(src.width, src.height);
 }
 
-void saveData(String thePath) {
-  buffer.save(thePath+".PNG");
+void saveData(String _path) {
+  buffer.save(_path+".PNG");
 }
