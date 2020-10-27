@@ -26,16 +26,18 @@ public class ControlFrame extends PApplet {
     frameRate(30);
     cp5 = new ControlP5(this);
 
-    cp5.addButton("open_file")
+    cp5.addBang("open")
       .setPosition(5, 5)
       .setSize(20, 20)
       .setLabel("O")
+      .plugTo(parent,"open_file");
       ;
 
-    cp5.addButton("save_file")
+    cp5.addBang("save")
       .setPosition(30, 5)
       .setSize(20, 20)
       .setLabel("S")
+      .plugTo(parent,"save_file");
       ;
 
     cp5.addButton("reset")
@@ -492,55 +494,5 @@ public class ControlFrame extends PApplet {
 
   public void reset() {
     buffer=src.copy();
-    preview=src.copy();
-    output=src.copy();
-  }
-
-
-  public void open_file() {
-    selectInput("Select a file to process: ", "inputSelection");
-  }
-
-  void inputSelection(File input) {
-    if (input == null) {
-      println("Window was closed or the user hit cancel.");
-    } else {
-      println("User selected " + input.getAbsolutePath());
-      loadData(input.getAbsolutePath());
-    }
-  }
-
-  public void save_file() {
-    selectOutput("Select a file to process:", "outputSelection");
-  }
-
-  void outputSelection(File output) {
-    if (output == null) {
-      println("Window was closed or the user hit cancel.");
-    } else {
-      println("User selected " + output.getAbsolutePath());
-      //      saveData(output.getAbsolutePath());
-      stillPath = output.getAbsolutePath();
-    }
-  }
-
-  public void record_sequence(boolean value) {
-    if (value){
-    selectFolder("Select a file to process:", "outputFolderSelection");
-    } else {
-      record=false;
-    }
-    
-  }
-
-  void outputFolderSelection(File output) {
-    if (output == null) {
-      println("Window was closed or the user hit cancel.");
-    } else {
-      println("User selected " + output.getAbsolutePath());
-      sequencePath = output.getAbsolutePath();
-      record = true;
-      sequenceIndex=0;
-    }
   }
 }

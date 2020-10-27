@@ -14,5 +14,8 @@ void keyReleased(){
     reverse=!reverse;
     redraw();
     break;
+    case 'h':
+    help=!help;
+    break;
   }
 }

@@ -43,7 +43,7 @@ PGraphics generateHelp() {
   overlay.beginDraw();
   overlay.noStroke();
   overlay.fill(0, 192);
-  overlay.rect(margin_left/2, margin_top/2, 520, 360);
+  overlay.rect(margin_left/2, margin_top/2, screen_width-(margin_right/2), screen_height-(margin_bottom/2));
   overlay.textSize(text_size);
   overlay.textFont(mono);
   overlay.fill(255);

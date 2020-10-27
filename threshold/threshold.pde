@@ -11,8 +11,8 @@ int GUILocationX = 0;
 int GUILocationY = 0;
 
 //DataViz Frame Dimensions and Location
-int screen_width = 384;
-int screen_height = 500;
+int screen_width = 650;
+int screen_height = 350;
 int WindowLocationX = GUIWidth;
 int WindowLocationY = 10;
 
@@ -21,26 +21,27 @@ PImage buffer;
 String path;
 boolean loaded = false;
 boolean reverse = false;
+boolean help = true;
 int min = 128;
 int max = 192;
 int mode = 0;
-ArrayList<Sample> samples;  
 
 void setup() {
   size(0, 0);
   surface.setLocation(WindowLocationX, WindowLocationY);
   surface.setSize(screen_width, screen_height);
   gui = new ControlFrame(this, GUILocationX, GUILocationY, GUIWidth, GUIHeight);
-  noLoop();
   noSmooth();
   background(0);
 }
 
 void draw() {
+  background(0);
   if (buffer !=null) {
     buffer = thresholdSort(source.copy(), min, max);
     image(buffer, 0, 0);
   }
+  if(help) image(generateHelp(),0,0);
 }
 
 PImage thresholdSort(PImage _image, int _min, int _max) {
@@ -54,8 +55,6 @@ PImage thresholdSort(PImage _image, int _min, int _max) {
     boolean in_flag = false;
     boolean out_flag = false;
     boolean min_flag = false;
-
-    samples = new ArrayList<Sample>();
 
     // gather Samples
     for (int x = 0; x < _image.width; ++x) {
@@ -178,38 +177,4 @@ PImage thresholdSort(PImage _image, int _min, int _max) {
   }
   _image.updatePixels();
   return _image;
-}
-
-
-class Sample {
-
-  int in = 0;
-  int out = 0;
-  int[] data;
-
-  Sample(int _in, int _out) {
-    in = _in;
-    out = _out;
-    data = new int[_out - _in];
-  }
-
-  int[] applySort() {
-    return data=sort(data);
-  }
-
-  int[] getSorted() {
-    return sort(data);
-  }
-
-  int[] applyReverse() {
-    return data=reverse(data);
-  }
-
-  int[] getReversed() {
-    return reverse(data);
-  }
-
-  int[] reverseSort() {
-    return reverse(sort(data));
-  }
 }

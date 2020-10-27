@@ -26,10 +26,7 @@ public class ControlFrame extends PApplet {
   public void setup() {
     surface.setLocation(x, y);
     cp5 = new ControlP5(this);
-
     background(0);
-
-
   }
 
   void draw() {

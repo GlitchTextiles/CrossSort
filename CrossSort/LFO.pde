@@ -1,7 +1,7 @@
 public class LFO {
 
   private float angle=0.0f, phase=0.0f, rate=0.0f;
-  private float min,max;
+  private float min=0.0f,max=1.0f;
   
   public LFO(float _rate, float _angle, float _phase) {
     this.rate = _rate;
@@ -23,7 +23,7 @@ public class LFO {
 
   public float update() {
     float output = this.math(angle, phase);
-    this.angle=wrap(this.angle+this.rate);
+    this.angle=(this.angle+this.rate);
     return output;
   }
 
@@ -53,11 +53,10 @@ public class LFO {
   public float wrap(float _value) { // wraps values around range 0-1
 
     if (_value < 0) {
-      return (_value % 1) + 1;
+      return (_value + 1 % 1);
     } else {
       return (_value % 1);
     }
     
   }
-  
 }
