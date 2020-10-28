@@ -19,25 +19,26 @@ public class ControlFrame extends PApplet {
   }
   public void settings() {
     size(w, h);
+    
   }
 
   public void setup() {
-
+    
     frameRate(30);
     cp5 = new ControlP5(this);
+    
+    surface.setLocation(x,y);
 
-    cp5.addBang("open")
+    cp5.addButton("open_image")
       .setPosition(5, 5)
       .setSize(20, 20)
       .setLabel("O")
-      .plugTo(parent,"open_file");
       ;
 
-    cp5.addBang("save")
+    cp5.addButton("save_image")
       .setPosition(30, 5)
       .setSize(20, 20)
       .setLabel("S")
-      .plugTo(parent,"save_file");
       ;
 
     cp5.addButton("reset")
@@ -51,6 +52,7 @@ public class ControlFrame extends PApplet {
       .setSize(20, 20)
       .setLabel("P")
       .plugTo(parent, "play")
+      .setValue(true);
     ;
 
 
@@ -72,8 +74,6 @@ public class ControlFrame extends PApplet {
       .setSize(20, 20)
       .setLabel("RST")
       ;
-
-
 
     cp5.addToggle("rand")
       .setPosition(5, 45)
@@ -103,36 +103,36 @@ public class ControlFrame extends PApplet {
       .activate(0)
       ;
 
-    cp5.addToggle("sort_x")
+    cp5.addToggle("LR")
       .setPosition(625, 45)
       .setSize(20, 20)
-      .setLabel("X")
-      .plugTo(parent, "sort_x")
+      .setLabel("LR")
+      .plugTo(parent, "LR")
       .setValue(false);
     ;
 
-    cp5.addToggle("sort_y")
+    cp5.addToggle("UD")
       .setPosition(675, 45)
       .setSize(20, 20)
-      .setLabel("Y")
-      .plugTo(parent, "sort_y")
+      .setLabel("UD")
+      .plugTo(parent, "UD")
       .setValue(false)
       ;
 
-    cp5.addToggle("sort_diagonal_a")
+    cp5.addToggle("DU")
       .setPosition(625, 5)
       .setSize(20, 20)
-      .setLabel("A")
-      .plugTo(parent, "diagonal_a")
+      .setLabel("DU")
+      .plugTo(parent, "DU")
       .setValue(false);
     ;
 
-    cp5.addToggle("sort_diagonal_b")
+    cp5.addToggle("DD")
       .setPosition(675, 5)
       .setSize(20, 20)
-      .setLabel("B")
-      .plugTo(parent, "diagonal_b")
-      .setValue(false)
+      .setLabel("DD")
+      .plugTo(parent, "DD")
+      .setValue(true)
       ;
 
 
@@ -249,37 +249,6 @@ public class ControlFrame extends PApplet {
       .setSize(20, 20)
       .setLabel("Tb")
       .plugTo(parent, "thresh_3")
-      ;
-
-    cp5.addSlider("shift_amt_x")
-      .setPosition(5, 155)
-      .setSize(255, 20)
-      .setRange(-10, 10)
-      .setNumberOfTickMarks(21)
-      .setLabel("shift x")
-      .plugTo(parent, "shift_amt_x")
-      ;
-    cp5.addSlider("shift_amt_y")
-      .setPosition(5, 180)
-      .setSize(255, 20)
-      .setRange(-10, 10)
-      .setNumberOfTickMarks(21)
-      .setLabel("shift y")
-      .plugTo(parent, "shift_amt_y")
-      ;
-
-    cp5.addToggle("shift_left")
-      .setPosition(325, 155)
-      .setSize(20, 20)
-      .setLabel("Y/N")
-      .plugTo(parent, "shift_left")
-      ;
-
-    cp5.addToggle("shift_right")
-      .setPosition(325, 180)
-      .setSize(20, 20)
-      .setLabel("Y/N")
-      .plugTo(parent, "shift_right")
       ;
 
     //RGB values for threshold_positive
@@ -428,7 +397,12 @@ public class ControlFrame extends PApplet {
       .setValue(1)
       ;
   }
-
+  public void open_image(){
+    open_file();
+  }
+  public void save_image(){
+    save_file();
+  }
   public void resetLFO() {
     for (int i = 0; i < lfos.length; i++) {
       lfos[i].reset();

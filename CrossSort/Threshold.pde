@@ -1,6 +1,7 @@
 
 
 color[] thresholdSort(color[] _pixels, int _min, int _max, int _mode) {
+  
 
   int in = 0;
   int out = 0;
@@ -108,7 +109,6 @@ color[] thresholdSort(color[] _pixels, int _min, int _max, int _mode) {
     }
 
     if ( in_flag && out_flag ) {
-
       int[] sample = new int[ out - in ];
 
       for (int j = 0; j < sample.length; ++j) {
@@ -119,7 +119,7 @@ color[] thresholdSort(color[] _pixels, int _min, int _max, int _mode) {
         sample=sort(sample);
         if (reverse) sample=reverse(sample);
       } else {
-        // bubble sort logic goes here
+        sample=pixelSort(sample, sort_mode);
       }
 
       for (int j = 0; j < sample.length; ++j) {
