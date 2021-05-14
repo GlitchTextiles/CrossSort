@@ -7,8 +7,8 @@ void keyReleased() {
     save_file();
     break;
   case 'l':
-    mode++;
-    mode%=6;
+    threshold_mode++;
+    threshold_mode%=6;
     redraw();
   case 'r':
     reverse=!reverse;

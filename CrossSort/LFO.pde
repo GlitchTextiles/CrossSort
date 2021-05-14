@@ -31,7 +31,6 @@ public class LFO {
     return map(sin(2*PI*_angle+_phase),-1,1,min,max);
   }
 
-
   public void reset() {
     this.rate = 0;
     this.angle = 0;

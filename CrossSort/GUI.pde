@@ -1,12 +1,23 @@
 
 public class ControlFrame extends PApplet {
 
-  controlP5.Label label;
   int w, h, x, y;
   PApplet parent;
   ControlP5 cp5;
   boolean shift = false;
   float value = 0.0;
+
+  Range threshold;
+  RadioButton sort_mode_radio, threshold_mode_radio, sort_by_radio;
+
+  int guiObjectSize = 30;
+  int guiBufferSize = 5;
+  int gridSize = guiObjectSize + guiBufferSize;
+  int gridOffset = 10;
+
+  int grid( int _pos) {
+    return gridSize * _pos + gridOffset;
+  }
 
   public ControlFrame(PApplet _parent, int _x, int _y, int _w, int _h) {
     super();   
@@ -19,395 +30,317 @@ public class ControlFrame extends PApplet {
   }
   public void settings() {
     size(w, h);
-    
   }
 
   public void setup() {
-    
+
     frameRate(30);
     cp5 = new ControlP5(this);
-    
-    surface.setLocation(x,y);
+
+    surface.setLocation(x, y);
+
+    // row 0 controls
 
     cp5.addButton("open_image")
-      .setPosition(5, 5)
-      .setSize(20, 20)
-      .setLabel("O")
+      .setPosition(grid(0), grid(0))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setLabel("OPEN")
       ;
+    cp5.getController("open_image").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
     cp5.addButton("save_image")
-      .setPosition(30, 5)
-      .setSize(20, 20)
-      .setLabel("S")
+      .setPosition(grid(1), grid(0))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setLabel("SAVE")
       ;
+    cp5.getController("save_image").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
     cp5.addButton("reset")
-      .setPosition(55, 5)
-      .setSize(20, 20)
+      .setPosition(grid(2), grid(0))
+      .setSize(guiObjectSize, guiObjectSize)
       .setLabel("RST")
       ;
+    cp5.getController("reset").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
     cp5.addToggle("play")
-      .setPosition(80, 5)
-      .setSize(20, 20)
-      .setLabel("P")
+      .setPosition(grid(3), grid(0))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setLabel("PLAY")
       .plugTo(parent, "play")
-      .setValue(true);
-    ;
+      ;
+    cp5.getController("play").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
 
     cp5.addToggle("record_sequence")
-      .setPosition(105, 5)
-      .setSize(20, 20)
-      .setLabel("R")
-    ;
+      .setPosition(grid(4), grid(0))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setLabel("REC")
+      ;
+    cp5.getController("record_sequence").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+
+    cp5.addToggle("help")
+      .setPosition(grid(5), grid(0))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setLabel("HELP")
+      .plugTo(parent, "help")
+      ;
+    cp5.getController("help").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+
+
+    // row 1 controls
 
     cp5.addToggle("quick")
-      .setPosition(130, 5)
-      .setSize(20, 20)
-      .setLabel("Q")
+      .setPosition(grid(0), grid(1))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setLabel("QK\nSRT")
       .plugTo(parent, "quick")
-    ;
-
-    cp5.addButton("resetLFO")
-      .setPosition(155, 5)
-      .setSize(20, 20)
-      .setLabel("RST")
       ;
+    cp5.getController("quick").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
     cp5.addToggle("rand")
-      .setPosition(5, 45)
-      .setSize(20, 20)
+      .setPosition(grid(1), grid(1))
+      .setSize(guiObjectSize, guiObjectSize)
       .setLabel("RAND")
       .plugTo(parent, "rand")
       .setValue(false);
     ;
+    cp5.getController("rand").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
     cp5.addToggle("automate")
-      .setPosition(30, 45)
-      .setSize(20, 20)
+      .setPosition(grid(2), grid(1))
+      .setSize(guiObjectSize, guiObjectSize)
       .setLabel("AUTO")
       .plugTo(parent, "automate")
       .setValue(false);
     ;
+    cp5.getController("automate").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
-    cp5.addRadioButton("sort_by")
-      .setPosition(55, 45)
-      .setSize(20, 20)
+    cp5.addButton("resetLFO")
+      .setPosition(grid(3), grid(1))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setLabel("RST\nLFO")
+      ;
+    cp5.getController("resetLFO").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+
+    // row 2 controls
+
+    sort_by_radio = cp5.addRadioButton("sort_by")
+      .setPosition(grid(0), grid(2))
+      .setSize(guiObjectSize, guiObjectSize)
       .setItemsPerRow(4)
-      .setSpacingColumn(25)
-      .addItem("val", 0)
-      .addItem("h", 1)
-      .addItem("s", 2)
-      .addItem("b", 3)
+      .setSpacingColumn(guiBufferSize)
+      .addItem("rgb", 0)
+      .addItem("hue", 1)
+      .addItem("sat", 2)
+      .addItem("brt", 3)
       .activate(0)
       ;
 
+    for (Toggle t : sort_by_radio.getItems()) {
+      t.getCaptionLabel().align(ControlP5.CENTER, CENTER);
+    }
+
+    // row 3 controls
+
+    sort_mode_radio = cp5.addRadioButton("sort_mode")
+      .setPosition(grid(0), grid(3))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setItemsPerRow(4)
+      .setSpacingColumn(guiBufferSize)
+      .addItem("FW>", 0)
+      .addItem("FW<", 1)
+      .addItem("RV>", 2)
+      .addItem("RV<", 3)
+      .activate(0)
+      ;
+      
+    for (Toggle t : sort_mode_radio.getItems()) {
+      t.getCaptionLabel().align(ControlP5.CENTER, CENTER);
+    }
+    // row 4 controls
+
+    threshold_mode_radio = cp5.addRadioButton("threshold_mode")
+      .setPosition(grid(0), grid(4))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setItemsPerRow(6)
+      .setSpacingColumn(guiBufferSize)
+      .addItem(">mn", 0)
+      .addItem("<mn", 1)
+      .addItem(">mx", 2)
+      .addItem("<mx", 3)
+      .addItem("><", 4)
+      .addItem("<>", 5)
+      .activate(0)
+      ;
+
+    for (Toggle t : threshold_mode_radio.getItems()) {
+      t.getCaptionLabel().align(ControlP5.CENTER, CENTER);
+    }
+
+    // row 5 controls
+
     cp5.addToggle("LR")
-      .setPosition(625, 45)
-      .setSize(20, 20)
+      .setPosition(grid(0), grid(5))
+      .setSize(guiObjectSize, guiObjectSize)
       .setLabel("LR")
       .plugTo(parent, "LR")
       .setValue(false);
     ;
+    cp5.getController("LR").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
     cp5.addToggle("UD")
-      .setPosition(675, 45)
-      .setSize(20, 20)
+      .setPosition(grid(1), grid(5))
+      .setSize(guiObjectSize, guiObjectSize)
       .setLabel("UD")
       .plugTo(parent, "UD")
       .setValue(false)
       ;
+    cp5.getController("UD").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
     cp5.addToggle("DU")
-      .setPosition(625, 5)
-      .setSize(20, 20)
+      .setPosition(grid(2), grid(5))
+      .setSize(guiObjectSize, guiObjectSize)
       .setLabel("DU")
       .plugTo(parent, "DU")
       .setValue(false);
     ;
+    cp5.getController("DU").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
     cp5.addToggle("DD")
-      .setPosition(675, 5)
-      .setSize(20, 20)
+      .setPosition(grid(3), grid(5))
+      .setSize(guiObjectSize, guiObjectSize)
       .setLabel("DD")
       .plugTo(parent, "DD")
       .setValue(true)
       ;
+    cp5.getController("DD").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
+    // row 6 controls
 
-    cp5.addToggle("color_mode_x")
-      .setPosition(650, 45)
-      .setSize(20, 20)
-      .setLabel("modeX")
-      .plugTo(parent, "color_mode_x")
-      ;
-
-    cp5.addToggle("color_mode_y")
-      .setPosition(700, 45)
-      .setSize(20, 20)
-      .setLabel("modeY")
-      .plugTo(parent, "color_mode_y")
-      ;
-
-    cp5.addToggle("direction_x_r")
-      .setPosition(625, 80)
-      .setSize(20, 20)
-      .setLabel("F/B")
-      .plugTo(parent, "direction_x_r")
-      ;
-    cp5.addToggle("direction_x_g")
-      .setPosition(625, 105)
-      .setSize(20, 20)
-      .setLabel("F/B")
-      .plugTo(parent, "direction_x_g")
-      ;
-    cp5.addToggle("direction_x_b")
-      .setPosition(625, 130)
-      .setSize(20, 20)
-      .setLabel("F/B")
-      .plugTo(parent, "direction_x_b")
-      ;
-
-    cp5.addToggle("order_x_r")
-      .setPosition(650, 80)
-      .setSize(20, 20)
-      .setLabel("</>")
-      .plugTo(parent, "order_x_r")
-      ;
-
-    cp5.addToggle("order_x_g")
-      .setPosition(650, 105)
-      .setSize(20, 20)
-      .setLabel("</>")
-      .plugTo(parent, "order_x_g")
-      ;
-
-    cp5.addToggle("order_x_b")
-      .setPosition(650, 130)
-      .setSize(20, 20)
-      .setLabel("</>")
-      .plugTo(parent, "order_x_b")
-      ;
-
-    cp5.addToggle("direction_y_r")
-      .setPosition(675, 80)
-      .setSize(20, 20)
-      .setLabel("F/B")
-      .plugTo(parent, "direction_y_r")
-      ;
-    cp5.addToggle("direction_y_g")
-      .setPosition(675, 105)
-      .setSize(20, 20)
-      .setLabel("F/B")
-      .plugTo(parent, "direction_y_g")
-      ;
-    cp5.addToggle("direction_y_b")
-      .setPosition(675, 130)
-      .setSize(20, 20)
-      .setLabel("F/B")
-      .plugTo(parent, "direction_y_b")
-      ;
-
-    cp5.addToggle("order_y_r")
-      .setPosition(700, 80)
-      .setSize(20, 20)
-      .setLabel("</>")
-      .plugTo(parent, "order_y_r")
-      ;
-
-    cp5.addToggle("order_y_g")
-      .setPosition(700, 105)
-      .setSize(20, 20)
-      .setLabel("</>")
-      .plugTo(parent, "order_y_g")
-      ;
-
-    cp5.addToggle("order_y_b")
-      .setPosition(700, 130)
-      .setSize(20, 20)
-      .setLabel("</>")
-      .plugTo(parent, "order_y_b")
-      ;
-
-    cp5.addToggle("thresh_mode_1")
-      .setPosition(600, 80)
-      .setSize(20, 20)
-      .setLabel("Tr")
-      .plugTo(parent, "thresh_1")
-      ;
-
-    cp5.addToggle("thresh_mode_2")
-      .setPosition(600, 105)
-      .setSize(20, 20)
-      .setLabel("Tg")
-      .plugTo(parent, "thresh_2")
-      ;
-
-    cp5.addToggle("thresh_mode_3")
-      .setPosition(600, 130)
-      .setSize(20, 20)
-      .setLabel("Tb")
-      .plugTo(parent, "thresh_3")
-      ;
-
-    //RGB values for threshold_positive
-    cp5.addSlider("r_pos")
-      .setPosition(5, 80)
-      .setSize(255, 20)
+    threshold = cp5.addRange("threshold")
+      .setLabel("threshold")
+      .setPosition(grid(0), grid(6))
+      .setSize(500, guiObjectSize)
+      .setHandleSize(guiBufferSize)
       .setRange(0, 255)
-      .setLabel("r thd +")
-      .plugTo(parent, "r_pos")
+      .setRangeValues(50, 205)
       ;
+    cp5.getController("threshold").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
-    cp5.addSlider("g_pos")
-      .setPosition(5, 105)
-      .setSize(255, 20)
-      .setRange(0, 255)
-      .setLabel("g thd +")
-      .plugTo(parent, "g_pos")
-      ;
-    cp5.addSlider("b_pos")
-      .setPosition(5, 130)
-      .setSize(255, 20)
-      .setRange(0, 255)
-      .setLabel("b thd +")
-      .plugTo(parent, "b_pos")
-      ;
-
-    //RGB values for threshold_negativee
-    cp5.addSlider("r_neg")
-      .setPosition(300, 80)
-      .setSize(255, 20)
-      .setRange(0, 255)
-      .setLabel("r thd -")
-      .plugTo(parent, "r_neg")
-      ;
-    cp5.addSlider("g_neg")
-      .setPosition(300, 105)
-      .setSize(255, 20)
-      .setRange(0, 255)
-      .setLabel("g thd -")
-      .plugTo(parent, "g_neg")
-      ;
-    cp5.addSlider("b_neg")
-      .setPosition(300, 130)
-      .setSize(255, 20)
-      .setRange(0, 255)
-      .setLabel("b thd -")
-      .plugTo(parent, "b_neg")
-      ;
-
-    // automation increments                  
-    cp5.addSlider("r_pos_inc")
-      .setPosition(5, 250)
-      .setSize(200, 20)
-      .setRange(-0.01, 0.01)
-      .setLabel("r_pos_inc")
-      ;
-
-    cp5.addSlider("r_neg_inc")
-      .setPosition(305, 250)
-      .setSize(200, 20)
-      .setRange(-0.01, 0.01)
-      .setLabel("r_neg_inc")
-      ;
-
-    cp5.addSlider("g_pos_inc")
-      .setPosition(5, 275)
-      .setSize(200, 20)
-      .setRange(-0.01, 0.01)
-      .setLabel("g_pos_inc")
-      ;
-
-    cp5.addSlider("g_neg_inc")
-      .setPosition(305, 275)
-      .setSize(200, 20)
-      .setRange(-0.01, 0.01)
-      .setLabel("g_neg_inc")
-      ;
-
-    cp5.addSlider("b_pos_inc")
-      .setPosition(5, 300)
-      .setSize(200, 20)
-      .setRange(-0.01, 0.01)
-      .setLabel("b_pos_inc")
-      ;
-
-    cp5.addSlider("b_neg_inc")
-      .setPosition(305, 300)
-      .setSize(200, 20)
-      .setRange(-0.01, 0.01)
-      .setLabel("b_neg_inc")
-      ;
-
-    // phase adjustments
-
-    cp5.addSlider("r_pos_phase")
-      .setPosition(5, 325)
-      .setSize(200, 20)
-      .setRange(0, 1)
-      .setLabel("r_pos_phase")
-      ;
-
-    cp5.addSlider("r_neg_phase")
-      .setPosition(305, 325)
-      .setSize(200, 20)
-      .setRange(0, 1)
-      .setLabel("r_neg_phase")
-      ;
-
-    cp5.addSlider("g_pos_phase")
-      .setPosition(5, 350)
-      .setSize(200, 20)
-      .setRange(0, 1)
-      .setLabel("g_pos_phase")
-      ;
-
-    cp5.addSlider("g_neg_phase")
-      .setPosition(305, 350)
-      .setSize(200, 20)
-      .setRange(0, 1)
-      .setLabel("g_neg_phase")
-      ;
-
-    cp5.addSlider("b_pos_phase")
-      .setPosition(5, 375)
-      .setSize(200, 20)
-      .setRange(0, 1)
-      .setLabel("b_pos_phase")
-      ;
-
-    cp5.addSlider("b_neg_phase")
-      .setPosition(305, 375)
-      .setSize(200, 20)
-      .setRange(0, 1)
-      .setLabel("b_neg_phase")
-      ;    
-
-    //iterations
+    // row 7 controls
 
     cp5.addSlider("iterations")
-      .setPosition(5, 205)
-      .setSize(200, 20)
-      .setRange(0, 50)
-      .setNumberOfTickMarks(51)
+      .setPosition(grid(0), grid(7))
+      .setSize(500, guiObjectSize)
+      .setRange(1, 100)
+      .setNumberOfTickMarks(100)
       .setLabel("Iterate")
       .plugTo(parent, "iterations")
       .setValue(1)
       ;
+    // automation will be incorporated in the SortOperation (tentative name) class 
+    // automation increments                  
+    //cp5.addSlider("r_pos_inc")
+    //  .setPosition(5, 250)
+    //  .setSize(200, 20)
+    //  .setRange(-0.01, 0.01)
+    //  .setLabel("r_pos_inc")
+    //  ;
+
+    //cp5.addSlider("r_neg_inc")
+    //  .setPosition(305, 250)
+    //  .setSize(200, 20)
+    //  .setRange(-0.01, 0.01)
+    //  .setLabel("r_neg_inc")
+    //  ;
+
+    //cp5.addSlider("g_pos_inc")
+    //  .setPosition(5, 275)
+    //  .setSize(200, 20)
+    //  .setRange(-0.01, 0.01)
+    //  .setLabel("g_pos_inc")
+    //  ;
+
+    //cp5.addSlider("g_neg_inc")
+    //  .setPosition(305, 275)
+    //  .setSize(200, 20)
+    //  .setRange(-0.01, 0.01)
+    //  .setLabel("g_neg_inc")
+    //  ;
+
+    //cp5.addSlider("b_pos_inc")
+    //  .setPosition(5, 300)
+    //  .setSize(200, 20)
+    //  .setRange(-0.01, 0.01)
+    //  .setLabel("b_pos_inc")
+    //  ;
+
+    //cp5.addSlider("b_neg_inc")
+    //  .setPosition(305, 300)
+    //  .setSize(200, 20)
+    //  .setRange(-0.01, 0.01)
+    //  .setLabel("b_neg_inc")
+    //  ;
+
+    //// phase adjustments
+
+    //cp5.addSlider("r_pos_phase")
+    //  .setPosition(5, 325)
+    //  .setSize(200, 20)
+    //  .setRange(0, 1)
+    //  .setLabel("r_pos_phase")
+    //  ;
+
+    //cp5.addSlider("r_neg_phase")
+    //  .setPosition(305, 325)
+    //  .setSize(200, 20)
+    //  .setRange(0, 1)
+    //  .setLabel("r_neg_phase")
+    //  ;
+
+    //cp5.addSlider("g_pos_phase")
+    //  .setPosition(5, 350)
+    //  .setSize(200, 20)
+    //  .setRange(0, 1)
+    //  .setLabel("g_pos_phase")
+    //  ;
+
+    //cp5.addSlider("g_neg_phase")
+    //  .setPosition(305, 350)
+    //  .setSize(200, 20)
+    //  .setRange(0, 1)
+    //  .setLabel("g_neg_phase")
+    //  ;
+
+    //cp5.addSlider("b_pos_phase")
+    //  .setPosition(5, 375)
+    //  .setSize(200, 20)
+    //  .setRange(0, 1)
+    //  .setLabel("b_pos_phase")
+    //  ;
+
+    //cp5.addSlider("b_neg_phase")
+    //  .setPosition(305, 375)
+    //  .setSize(200, 20)
+    //  .setRange(0, 1)
+    //  .setLabel("b_neg_phase")
+    //  ;
   }
-  public void open_image(){
+
+
+  public void open_image() {
     open_file();
   }
-  public void save_image(){
+
+  public void save_image() {
     save_file();
   }
-  public void resetLFO() {
-    for (int i = 0; i < lfos.length; i++) {
-      lfos[i].reset();
-    }
-  }
+
+  //public void resetLFO() {
+  //  for (int i = 0; i < lfos.length; i++) {
+  //    lfos[i].reset();
+  //  }
+  //}
 
   public void r_pos_inc(float _value) {
     inc[0] = _value;
@@ -461,6 +394,23 @@ public class ControlFrame extends PApplet {
     sort_by = id;
     println(sort_by);
   }
+
+  public void sort_mode(int id) {
+    sort_mode = id;
+  }
+
+  public void threshold_mode(int id) {
+    threshold_mode = id;
+  }
+
+
+  public void controlEvent(ControlEvent theControlEvent) {
+    if (theControlEvent.isFrom("threshold")) {
+      min = int(theControlEvent.getController().getArrayValue(0));
+      max = int(theControlEvent.getController().getArrayValue(1));
+    }
+  }
+
 
   public void draw() {
     background(50);

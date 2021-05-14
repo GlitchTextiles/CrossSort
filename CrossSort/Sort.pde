@@ -1,6 +1,6 @@
 //pixelsorting
 
-PImage sortPixels (PImage _image, color _pos, color _neg) { 
+PImage sortPixels (PImage _image, int _min, int _max) { 
 
   color[] px_buffer;
 
@@ -13,7 +13,6 @@ PImage sortPixels (PImage _image, color _pos, color _neg) {
 
   _image.loadPixels();
 
-  // this really needs to be cleaned up...
   // first comes the direction, let's use names that make sense:
   // UP, DOWN, LEFT, RIGHT
 
@@ -67,12 +66,13 @@ PImage sortPixels (PImage _image, color _pos, color _neg) {
         } else {
           buffer_size = _image.height-(i - _image.width);
         }
+      } else {
+        println("[!] image dimension error in diagonal up (DU) logic");
       }
 
       // set buffer size
       px_buffer=new color[buffer_size];
 
-      //println(", x: "+x_start+", y: "+y_start+", i: "+i+", buffer_size = "+buffer_size);
       // fill the buffer
       x=x_start;
       y=y_start;
@@ -83,9 +83,9 @@ PImage sortPixels (PImage _image, color _pos, color _neg) {
       }
 
       // perform sorting operations
-      px_buffer = thresholdSort(px_buffer, _pos, _neg, mode);
+      px_buffer = thresholdSort(px_buffer, _min, _max, threshold_mode);
 
-      // 
+      // write the sorted pixels back to the buffer
       x=x_start;
       y=y_start;
       for (int j = 0; j < px_buffer.length; j++) {
@@ -111,7 +111,6 @@ PImage sortPixels (PImage _image, color _pos, color _neg) {
           buffer_size = i+1;
         } else if (i >= _image.width && i < _image.height) {
           buffer_size = _image.width;
-          //println("x: "+x_start+", y: "+y_start+", i: "+i+", buffer_size = "+buffer_size);
         } else {
           buffer_size = _image.height-(i-_image.width);
         }
@@ -122,12 +121,13 @@ PImage sortPixels (PImage _image, color _pos, color _neg) {
           buffer_size = i+1;
         } else if (i >= _image.height && i < _image.width) {
           buffer_size = _image.height;
-          //println("x: "+x_start+", y: "+y_start+", i: "+i+", buffer_size = "+buffer_size);
         } else {
           x_start=_image.width-1;
           y_start=(_image.height-1)-(i-_image.width);
           buffer_size = _image.height-(i-_image.width);
         }
+      } else {
+        println("[!] image dimension error in diagonal down (DD) logic");
       }
 
       // set buffer size
@@ -136,7 +136,6 @@ PImage sortPixels (PImage _image, color _pos, color _neg) {
       // fill the buffer
       x=x_start;
       y=y_start;
-      //println(", x: "+x_start+", y: "+y_start+", i: "+i+", buffer_size = "+buffer_size);
       for (int j = 0; j < px_buffer.length; j++) {
         px_buffer[j] = _image.pixels[y*_image.width+x];
         x--;
@@ -144,9 +143,9 @@ PImage sortPixels (PImage _image, color _pos, color _neg) {
       }
 
       // perform sorting operations
-      px_buffer = thresholdSort(px_buffer, _pos, _neg, mode);
+      px_buffer = thresholdSort(px_buffer, _min, _max, threshold_mode);
 
-      // 
+      // write the sorted pixels back to the buffer
       x=x_start;
       y=y_start;
       for (int j = 0; j < px_buffer.length; j++) {
@@ -165,7 +164,7 @@ PImage sortPixels (PImage _image, color _pos, color _neg) {
       for (int b = 0; b < px_buffer.length; b++) {
         px_buffer[b] = _image.pixels[a*_image.width+b];
       }
-      px_buffer = thresholdSort(px_buffer, _pos, _neg, mode);
+      px_buffer = thresholdSort(px_buffer, _min, _max, threshold_mode);
       for (int b = 0; b < px_buffer.length; b++) {
         _image.pixels[a*_image.width+b] = px_buffer[b];
       }
@@ -179,7 +178,7 @@ PImage sortPixels (PImage _image, color _pos, color _neg) {
       for (int b = 0; b < px_buffer.length; b++) {
         px_buffer[b] = _image.pixels[b*_image.width+a];
       }
-      px_buffer = thresholdSort(px_buffer, _pos, _neg, mode);
+      px_buffer = thresholdSort(px_buffer, _min, _max, threshold_mode);
       for (int b = 0; b < px_buffer.length; b++) {
         _image.pixels[b*_image.width+a] = px_buffer[b];
       }
@@ -334,7 +333,6 @@ color[] pixelSort(color[] _pixels, int _sort_mode) {
 
   return _pixels;
 }
-
 
 int[] swapPixels(int[] _pixels, int _index1, int _index2) {
   int pixel = _pixels[_index1];
