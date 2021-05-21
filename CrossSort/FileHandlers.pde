@@ -2,7 +2,7 @@ public void open_file() {
   selectInput("Select a file to process: ", "inputSelection");
 }
 
-void inputSelection(File input) {
+public void inputSelection(File input) {
   if (input == null) {
     println("Window was closed or the user hit cancel.");
   } else {
@@ -17,7 +17,7 @@ public void save_file() {
   selectOutput("Specify file location and format to save to:", "outputSelection");
 }
 
-void outputSelection(File output) {
+public void outputSelection(File output) {
   if (output == null) {
     println("Window was closed or the user hit cancel.");
   } else {
@@ -35,7 +35,7 @@ public void record_sequence(boolean value) {
   }
 }
 
-void outputFolderSelection(File output) {
+public void outputFolderSelection(File output) {
   if (output == null) {
     println("Window was closed or the user hit cancel.");
   } else {
