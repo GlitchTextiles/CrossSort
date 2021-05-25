@@ -2,7 +2,9 @@
 
 import controlP5.*;
 
-ControlFrame gui;
+ControlP5 cp5;
+
+
 
 String inputPath;
 String sequencePath;
@@ -10,61 +12,50 @@ String stillPath;
 
 boolean play = false;
 boolean record = false;
-
 boolean help = false;
 
 PImage src;
 PImage buffer;
 
-int sort_mode = 0;
-int sort_by = 0;
-
-boolean UD=false;
-boolean LR=false;
-boolean DD=false;
-boolean DU=false;
-
-
 int sequenceIndex = 0;
 int iterations=0;
-
-float[] inc = new float[6];
-float[] phase = new float[6];
 
 int ControlFrame_w = 650;
 int ControlFrame_h = 425;
 int GUILocationX = 0;
 int GUILocationY = 0;
 
-int screen_x=ControlFrame_w;
+int screen_x=0;
 int screen_y=0;
-int screen_width = 600;
-int screen_height = 410;
+int screen_width = 650;
+int screen_height = 425;
+
+int guiObjectSize = 40;
+int guiBufferSize = 10;
+int gridSize = guiObjectSize + guiBufferSize;
+int gridOffset = 10;
+
+SortOperations operations;
+DisplayWindow displayWindow = new DisplayWindow(screen_width,0,10,10);
 
 void setup() {
   size(10, 10);
   surface.setSize(screen_width, screen_height);
   surface.setLocation(screen_x, screen_y);
   frameRate(30);
-
-  //setup GUI
-  gui = new ControlFrame(this, GUILocationX, GUILocationY, ControlFrame_w, ControlFrame_h);
+  setupGUI();
+  operations = new SortOperations(grid(0),grid(2));
+  
+  
+  
 }
 
 void draw() {
   background(0);
 
-  //begin process
   if (play && buffer != null) {
 
-    if (gui.operation.quick) {
-      buffer = src.copy();
-      gui.operation.sortPixels(buffer);
-    } else {
-      for (int i = 0; i < iterations; i++) {
-        gui.operation.sortPixels(buffer);
-      }
-    }
+    operations.sort();
 
     if (record) {
       if (sequencePath != null) {
@@ -73,12 +64,10 @@ void draw() {
       }
     }
   }
-  if (buffer != null) image(buffer, 0, 0);
+  if (buffer != null) displayWindow.display(buffer);
   if (help) image(generateHelp(), 0, 0);
 }
-//end process
 
-void breakPoint() {
-  println("breakpoint reached!");
-  exit();
+void reset() {
+  buffer=src.copy();
 }
