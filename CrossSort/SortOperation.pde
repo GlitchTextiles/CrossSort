@@ -1,11 +1,13 @@
 public class SortOperations {
   ArrayList<SortOperation> sortOperations;
   Accordion accordion;
+  ControlP5 controlContext;
 
-  SortOperations(int _x, int _y ) {
+  SortOperations(ControlP5 _controlContext, int _x, int _y ) {
+    controlContext = _controlContext;
     sortOperations = new ArrayList<SortOperation>();
 
-    accordion = cp5.addAccordion("Operations")
+    accordion = controlContext.addAccordion("Operations")
       .setPosition(_x, _y)
       .setWidth(600)
       .setHeight(guiObjectSize)
@@ -13,8 +15,9 @@ public class SortOperations {
   }
 
   public void add() {
-    sortOperations.add(new SortOperation("Operation "+sortOperations.size(), cp5));
+    sortOperations.add(new SortOperation("Operation "+sortOperations.size(), controlContext));
     accordion.addItem(sortOperations.get(sortOperations.size()-1).group);
+
   }
 
   public void remove() {
@@ -24,10 +27,14 @@ public class SortOperations {
     }
   }
 
-  public void sort() {
-    for (SortOperation o : sortOperations) {
+  public int size() {
+    return sortOperations.size();
+  }
+
+  public void sort(PImage _image) {
+    for (SortOperation o : sortOperations) {  
       for (int i = 0; i < iterations; i++) {
-        o.sortPixels(buffer);
+        o.sortPixels(_image);
       }
     }
   }
@@ -59,7 +66,7 @@ public class SortOperation {
 
     // GUI
 
-    group = cp5.addGroup(name);
+    group = controls.addGroup(name);
 
     // Quick - reverse toggle / Slow  - sort_direction radio
     // sort_by radio
@@ -229,15 +236,19 @@ public class SortOperation {
 
   public void sampleDirection(int _id) {
     this.sample_direction = _id;
+    println("sample_direction: "+sample_direction);
   }
   public void thresholdMode(int _id) {
     this.threshold_mode = _id;
+    println("threshold_mode: "+threshold_mode);
   }
   public void sortDirection(int _id) {
     this.sort_direction = _id;
+    println("sort_direction: "+sort_direction);
   }
   public void sortBy(int _id) {
     this.sort_by = _id;
+    println("sort_by: "+sort_by);
   }
 
   int grid( int _pos) {
@@ -245,7 +256,6 @@ public class SortOperation {
   }
 
   PImage sortPixels (PImage _image) {
-
     color[] px_buffer;
 
     int buffer_size = 0;
