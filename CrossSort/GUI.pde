@@ -23,6 +23,9 @@ public class ControlFrame extends PApplet {
     surface.setLocation(x, y);
     cp5 = new ControlP5(this);   
     operations = new SortOperations(cp5, grid(0), grid(2));
+    for(int i = 0; i <4 ;i++){
+      operations.add();
+    }
     frameRate(30);
 
     // row 0 controls
@@ -67,37 +70,12 @@ public class ControlFrame extends PApplet {
       ;
     cp5.getController("record_sequence").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
-    cp5.addToggle("help")
-      .setPosition(grid(5), grid(0))
-      .setSize(guiObjectSize, guiObjectSize)
-      .setLabel("HELP")
-      .plugTo(parent, "help")
-      ;
-    cp5.getController("help").getCaptionLabel().align(ControlP5.CENTER, CENTER);
-
-    cp5.addBang("addOperation")
-      .setPosition(grid(6), grid(0))
-      .setSize(guiObjectSize, guiObjectSize)
-      .setLabel("ADD\nOp")
-      .plugTo(parent, "addOperation")
-      ;
-    cp5.getController("addOperation").getCaptionLabel().align(ControlP5.CENTER, CENTER);
-
-    cp5.addBang("removeOperation")
-      .setPosition(grid(7), grid(0))
-      .setSize(guiObjectSize, guiObjectSize)
-      .setLabel("REM\nOP")
-      .plugTo(parent, "removeOperation")
-      ;
-    cp5.getController("help").getCaptionLabel().align(ControlP5.CENTER, CENTER);
-
     // row 1 controls
 
     cp5.addSlider("iterations")
       .setPosition(grid(0), grid(1))
-      .setSize(500, guiObjectSize)
+      .setSize(600, guiObjectSize)
       .setRange(1, 100)
-      .setNumberOfTickMarks(100)
       .setLabel("Iterate")
       .plugTo(parent, "iterations")
       .setValue(1)
@@ -108,14 +86,14 @@ public class ControlFrame extends PApplet {
     background(0);
   }
 
-  void addOperation() {
-    if(operations.size()<4) operations.add();
-  }
+  //void addOperation() {
+  //  if(operations.size()<4) operations.add();
+  //}
 
 
-  void removeOperation() {
-    if(operations.size()>0) operations.remove();
-  }
+  //void removeOperation() {
+  //  if(operations.size()>0) operations.remove();
+  //}
 
   void reset() {
     buffer=src.copy();

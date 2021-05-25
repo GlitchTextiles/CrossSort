@@ -15,7 +15,7 @@ int sequenceIndex = 0;
 int iterations=0;
 
 int ControlFrame_w = 650;
-int ControlFrame_h = 425;
+int ControlFrame_h = 790;
 int GUILocationX = 0;
 int GUILocationY = 0;
 

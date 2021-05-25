@@ -10,14 +10,13 @@ public class SortOperations {
     accordion = controlContext.addAccordion("Operations")
       .setPosition(_x, _y)
       .setWidth(600)
-      .setHeight(guiObjectSize)
       ;
+      accordion.setCollapseMode(Accordion.MULTI);
   }
 
   public void add() {
-    sortOperations.add(new SortOperation("Operation "+sortOperations.size(), controlContext));
-    accordion.addItem(sortOperations.get(sortOperations.size()-1).group);
-
+    sortOperations.add(new SortOperation("Sort Operation "+(sortOperations.size()+1), controlContext));
+    accordion.addItem(sortOperations.get(sortOperations.size()-1).group).setItemHeight(grid(3)).open();
   }
 
   public void remove() {
@@ -73,88 +72,42 @@ public class SortOperation {
 
     // row 1 controls
 
-    controls.addToggle(name+"quick")
-      .setPosition(grid(0), grid(0))
-      .setSize(guiObjectSize, guiObjectSize)
-      .setLabel("QK\nSRT")
-      .plugTo(this, "quickToggle")
-      .moveTo(group)
-      ;
-    controls.getController(name+"quick").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+    //controls.addToggle(name+"quick")
+    //  .setPosition(grid(0), grid(0))
+    //  .setSize(guiObjectSize, guiObjectSize)
+    //  .setLabel("QK\nSRT")
+    //  .plugTo(this, "quickToggle")
+    //  .moveTo(group)
+    //  ;
+    //controls.getController(name+"quick").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
     // visible when quick
 
-    controls.addToggle(name+"reverse")
-      .setPosition(grid(1), grid(0))
-      .setSize(guiObjectSize, guiObjectSize)
-      .setLabel("REV")
-      .plugTo(this, "reverse")
-      .setValue(false)
-      .moveTo(group)
-      .hide();
-    ;
-    controls.getController(name+"reverse").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+    //controls.addToggle(name+"reverse")
+    //  .setPosition(grid(1), grid(0))
+    //  .setSize(guiObjectSize, guiObjectSize)
+    //  .setLabel("REV")
+    //  .plugTo(this, "reverse")
+    //  .setValue(false)
+    //  .moveTo(group)
+    //  .hide();
+    //;
+    //controls.getController(name+"reverse").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
-    controls.addToggle(name+"random")
-      .setPosition(grid(2), grid(0))
-      .setSize(guiObjectSize, guiObjectSize)
-      .setLabel("RAND")
-      .setValue(false)
-      .moveTo(group)
-      .hide()
-      ;
-    controls.getController(name+"random").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+    //controls.addToggle(name+"random")
+    //  .setPosition(grid(2), grid(0))
+    //  .setSize(guiObjectSize, guiObjectSize)
+    //  .setLabel("RAND")
+    //  .setValue(false)
+    //  .moveTo(group)
+    //  .hide()
+    //  ;
+    //controls.getController(name+"random").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
     // visible when !quick
-
-    sort_mode_radio = controls.addRadioButton(name+"sort_direction")
-      .setPosition(grid(1), grid(0))
-      .setSize(guiObjectSize, guiObjectSize)
-      .setItemsPerRow(4)
-      .setSpacingColumn(guiBufferSize)
-      .addItem(name+"FW>", 0)
-      .addItem(name+"FW<", 1)
-      .addItem(name+"RV>", 2)
-      .addItem(name+"RV<", 3)
-      .plugTo(this, "sortDirection")
-      .moveTo(group)
-      .activate(0)
-      ;
-    sort_mode_radio.getItem(name+"FW>").setLabel("FW>");
-    sort_mode_radio.getItem(name+"FW<").setLabel("FW<");
-    sort_mode_radio.getItem(name+"RV>").setLabel("RV>");
-    sort_mode_radio.getItem(name+"RV<").setLabel("RV<");
-    for (Toggle t : sort_mode_radio.getItems()) {
-      t.getCaptionLabel().align(ControlP5.CENTER, CENTER);
-    }
-
-    // row 2 controls
-
-    sort_by_radio = controls.addRadioButton(name+"sort_by")
-      .setPosition(grid(0), grid(1))
-      .setSize(guiObjectSize, guiObjectSize)
-      .setItemsPerRow(4)
-      .setSpacingColumn(guiBufferSize)
-      .addItem(name+"rgb", 0)
-      .addItem(name+"hue", 1)
-      .addItem(name+"sat", 2)
-      .addItem(name+"brt", 3)
-      .plugTo(this, "sortBy")
-      .moveTo(group)
-      .activate(0)
-      ;
-    sort_by_radio.getItem(name+"rgb").setLabel("raw");
-    sort_by_radio.getItem(name+"hue").setLabel("hue");
-    sort_by_radio.getItem(name+"sat").setLabel("sat");
-    sort_by_radio.getItem(name+"brt").setLabel("brt");
-    for (Toggle t : sort_by_radio.getItems()) {
-      t.getCaptionLabel().align(ControlP5.CENTER, CENTER);
-    }
-
-    // row 3 controls
-
+    
     sample_direction_radio = controls.addRadioButton(name+"sample_direction")
-      .setPosition(grid(0), grid(2))
+      .setPosition(grid(0), grid(0))
       .setSize(guiObjectSize, guiObjectSize)
       .setItemsPerRow(6)
       .setSpacingColumn(guiBufferSize)
@@ -173,11 +126,30 @@ public class SortOperation {
     for (Toggle t : sample_direction_radio.getItems()) {
       t.getCaptionLabel().align(ControlP5.CENTER, CENTER);
     }
-
-    // row 4 controls
-
+    
+    sort_by_radio = controls.addRadioButton(name+"sort_by")
+      .setPosition(grid(5), grid(0))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setItemsPerRow(4)
+      .setSpacingColumn(guiBufferSize)
+      .addItem(name+"rgb", 0)
+      .addItem(name+"hue", 1)
+      .addItem(name+"sat", 2)
+      .addItem(name+"brt", 3)
+      .plugTo(this, "sortBy")
+      .moveTo(group)
+      .activate(0)
+      ;
+    sort_by_radio.getItem(name+"rgb").setLabel("raw");
+    sort_by_radio.getItem(name+"hue").setLabel("hue");
+    sort_by_radio.getItem(name+"sat").setLabel("sat");
+    sort_by_radio.getItem(name+"brt").setLabel("brt");
+    for (Toggle t : sort_by_radio.getItems()) {
+      t.getCaptionLabel().align(ControlP5.CENTER, CENTER);
+    }
+    
     threshold_mode_radio = controls.addRadioButton(name+"threshold_mode")
-      .setPosition(grid(0), grid(3))
+      .setPosition(grid(0), grid(1))
       .setSize(guiObjectSize, guiObjectSize)
       .setItemsPerRow(6)
       .setSpacingColumn(guiBufferSize)
@@ -200,11 +172,32 @@ public class SortOperation {
     for (Toggle t : threshold_mode_radio.getItems()) {
       t.getCaptionLabel().align(ControlP5.CENTER, CENTER);
     }
-
+    
+    sort_mode_radio = controls.addRadioButton(name+"sort_direction")
+      .setPosition(grid(7), grid(1))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setItemsPerRow(4)
+      .setSpacingColumn(guiBufferSize)
+      .addItem(name+"FW>", 0)
+      .addItem(name+"FW<", 1)
+      .addItem(name+"RV>", 2)
+      .addItem(name+"RV<", 3)
+      .plugTo(this, "sortDirection")
+      .moveTo(group)
+      .activate(0)
+      ;
+    sort_mode_radio.getItem(name+"FW>").setLabel("FW>");
+    sort_mode_radio.getItem(name+"FW<").setLabel("FW<");
+    sort_mode_radio.getItem(name+"RV>").setLabel("RV>");
+    sort_mode_radio.getItem(name+"RV<").setLabel("RV<");
+    for (Toggle t : sort_mode_radio.getItems()) {
+      t.getCaptionLabel().align(ControlP5.CENTER, CENTER);
+    }
+    
     threshold = controls.addRange(name+"threshold")
       .setLabel("threshold")
-      .setPosition(grid(0), grid(4))
-      .setSize(500, guiObjectSize)
+      .setPosition(grid(0), grid(2))
+      .setSize(600, guiObjectSize)
       .setHandleSize(guiBufferSize)
       .setRange(0, 255)
       .plugTo(this)
