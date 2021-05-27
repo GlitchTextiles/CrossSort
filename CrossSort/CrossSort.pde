@@ -1,5 +1,3 @@
-//import java.util.*;
-
 import controlP5.*;
 
 String inputPath;

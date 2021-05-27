@@ -1,5 +1,7 @@
 # CrossSort
 
+![](images/output.png)
+
 An operation based pixel sorting tool by Phillip David Stearns for GlitchTextiles GlitchTools.
 
 Hat tip to [Kim Asendorf](https://github.com/kimasendorf/ASDFPixelSort) for pioneering pixel sorting as a creative image processsing technique.
@@ -24,7 +26,7 @@ Hat tip to [Kim Asendorf](https://github.com/kimasendorf/ASDFPixelSort) for pion
 
 ![](images/open.png)
 
-Click `OPEN` to Select a file to process. Generally this should not be a very high resolution file. Try a 1280x720 px to get familiar with the controls.
+Click `OPEN` to Select an image to process (`.png`, `.jpg`, `.jp2`, `.tif`, `.tiff`, `.gif`, `.bmp`). Generally this should not be a very high resolution file. Try a 1280x720 px to get familiar with the controls.
 
 ### Enable a SortOperation
 
@@ -45,36 +47,43 @@ Click `ENABLE` to enable a SortOperation. SortOperation is a class that performs
 
 ![](images/pixel_value.png)
 
-* `RAW` - Evaluates pixels based on their 32bit ARGB value.
-* `HUE` - Evaluates pixels based on their hue.
-* `SAT` - Evaluates pixels based on their saturation.
-* `BRT` - Evaluates pixels based on their brightness.
+Evaluate pixels based on their:
+
+* `RAW` - 32bit ARGB value
+* `HUE` - hue
+* `SAT` - saturation
+* `BRT` - brightness
 
 ### Select Threshold Logic
 
 ![](images/threshold_logic.png)
 
-* `<MIN` - Samples are selected when they fall below the `MIN` threshold.
-* `>MIN` - Samples are selected when they fall above the `MIN` threshold.
-* `>MAX` - Samples are selected when they fall above the `MAX` threshold. 
-* `<MAX` - Samples are selected when they fall below the `MAX` threshold. 
-* `><` - Samples are selected when they fall above the `MIN` and below the `MAX` threshold.
-* `<>` - Samples are selected when they fall below the `MIN` and above the `MAX` threshold.
+
+Samples are selected when they fall:
+
+* `<MIN` - below the `MIN` threshold
+* `>MIN` - above the `MIN` threshold
+* `>MAX` - above the `MAX` threshold
+* `<MAX` - below the `MAX` threshold
+* `><` - above the `MIN` and below the `MAX` threshold
+* `<>` - below the `MIN` and above the `MAX` threshold
 
 ### Select Pixel Evaluation Direction and Logic
 
 ![](images/evaluation_logic.png)
 
-* `FW<` - Iterates through the sample counting up, swaps pixels if the current is less than the next.
-* `FW>` - Iterates through the sample counting up, swaps pixels if the current is greater than the next.
-* `RV<` - Iterates through the sample counting down, swaps pixels if the current is less than the next.
-* `RV>` - Iterates through the sample counting down, swaps pixels if the current is greater than the next.
+Iterates through the sample:
+
+* `FW<` - counting up, swaps pixels if the current is less than the next.
+* `FW>` - counting up, swaps pixels if the current is greater than the next.
+* `RV<` - counting down, swaps pixels if the current is less than the next.
+* `RV>` - counting down, swaps pixels if the current is greater than the next.
 
 ### Set the Threshold min and max 
 
 ![](images/threshold.png)
 
-The Threshold slider allows for the setting of the min and max as a range.
+The Threshold slider allows for the setting of the `min` and `max` as a range.
 
 ### Set the number of Iterations per Frame
 
@@ -100,6 +109,8 @@ Generally this shouldn't be too high as it will slow the frame rate down.
 ### Save the Current Frame
 
 ![](images/save.png)
+
+* Note: If you do not provide an extension, `.tif` will be used.
 
 ### Reset the Image
 
