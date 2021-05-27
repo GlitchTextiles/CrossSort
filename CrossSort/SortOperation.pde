@@ -9,18 +9,20 @@ public class SortOperations {
 
     accordion = controlContext.addAccordion("Operations")
       .setPosition(_x, _y)
-      .setWidth(600)
+      .setWidth(guiObjectWidth+2*guiBufferSize)
+      .setCollapseMode(Accordion.MULTI)
       ;
-      accordion.setCollapseMode(Accordion.MULTI);
   }
 
+  //add() and remove() create ConcurrentModification exceptions when used dynamically :(
+
   public void add() {
-    sortOperations.add(new SortOperation("Sort Operation "+(sortOperations.size()+1), controlContext));
+    sortOperations.add(new SortOperation("Sort Operation "+(sortOperations.size()+1)+" ", controlContext));
     accordion.addItem(sortOperations.get(sortOperations.size()-1).group).setItemHeight(grid(3)).open();
   }
 
   public void remove() {
-    if (sortOperations.size() >0) {
+    if (sortOperations.size() > 0) {
       sortOperations.get(sortOperations.size()-1).group.remove();
       sortOperations.remove(sortOperations.size()-1);
     }
@@ -33,7 +35,8 @@ public class SortOperations {
   public void sort(PImage _image) {
     for (SortOperation o : sortOperations) {  
       for (int i = 0; i < iterations; i++) {
-        o.sortPixels(_image);
+
+        if (o.enable) o.sortPixels(_image);
       }
     }
   }
@@ -41,74 +44,78 @@ public class SortOperations {
 
 public class SortOperation {
 
-  int sample_direction = 0; // 0 = LR, 1 = UD, 2 = DD, 3 = DU
-  int threshold_mode = 0;
-  int sort_direction = 0;
-  int sort_by = 0; // 0 = RAW, 1 = R, 2 = G, 3 = B, 4 = HUE,
-  boolean quick = false;
-  boolean reverse = false;
-  int min = 0;
-  int max = 0;
+  public int sample_direction = 0; // 0 = LR, 1 = UD, 2 = DD, 3 = DU
+  public int threshold_mode = 0;
+  public int sort_direction = 0;
+  public int sort_by = 0; // 0 = RAW, 1 = R, 2 = G, 3 = B, 4 = HUE,
+  public boolean quick = false;
+  public boolean reverse = false;
+  public boolean enable;
+  public int min = 0;
+  public int max = 0;
 
-  ControlP5 controls;
+  public ControlP5 controls;
 
-  Group group;
+  public Group group;
 
-  Range threshold;
-  RadioButton sample_direction_radio, sort_mode_radio, threshold_mode_radio, sort_by_radio;
+  public Range threshold;
+  public RadioButton sample_direction_radio;
+  public RadioButton sort_mode_radio;
+  public RadioButton threshold_mode_radio;
+  public RadioButton sort_by_radio;
+  public String name;
 
-  String name;
-
-  SortOperation(String _name, ControlP5 _controlContext) {
+  public SortOperation(String _name, ControlP5 _controlContext) {
     name = _name;
     controls = _controlContext;
 
     // GUI
-
-    group = controls.addGroup(name);
-
-    // Quick - reverse toggle / Slow  - sort_direction radio
-    // sort_by radio
-
-    // row 1 controls
-
-    //controls.addToggle(name+"quick")
-    //  .setPosition(grid(0), grid(0))
-    //  .setSize(guiObjectSize, guiObjectSize)
-    //  .setLabel("QK\nSRT")
-    //  .plugTo(this, "quickToggle")
-    //  .moveTo(group)
-    //  ;
-    //controls.getController(name+"quick").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+    group = controls.addGroup(name)
+      .setBackgroundColor(guiGroupBackground)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
+      .disableCollapse()
+      .hideArrow()
+      ;
 
     // visible when quick
 
-    //controls.addToggle(name+"reverse")
-    //  .setPosition(grid(1), grid(0))
-    //  .setSize(guiObjectSize, guiObjectSize)
-    //  .setLabel("REV")
-    //  .plugTo(this, "reverse")
-    //  .setValue(false)
-    //  .moveTo(group)
-    //  .hide();
-    //;
-    //controls.getController(name+"reverse").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+    controls.addToggle(name+"reverse")
+      .setPosition(grid(7), grid(1))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
+      .setLabel("REV")
+      .plugTo(this, "reverse")
+      .setValue(false)
+      .moveTo(group)
+      .hide();
+    ;
+    controls.getController(name+"reverse").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
-    //controls.addToggle(name+"random")
-    //  .setPosition(grid(2), grid(0))
-    //  .setSize(guiObjectSize, guiObjectSize)
-    //  .setLabel("RAND")
-    //  .setValue(false)
-    //  .moveTo(group)
-    //  .hide()
-    //  ;
-    //controls.getController(name+"random").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+    controls.addToggle(name+"enable")
+      .setPosition(grid(11), grid(0))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
+      .setLabel("ENABLE")
+      .plugTo(this, "enable")
+      .setValue(false)
+      .moveTo(group)
+      ;
+    controls.getController(name+"enable").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
     // visible when !quick
-    
+
     sample_direction_radio = controls.addRadioButton(name+"sample_direction")
       .setPosition(grid(0), grid(0))
       .setSize(guiObjectSize, guiObjectSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
       .setItemsPerRow(6)
       .setSpacingColumn(guiBufferSize)
       .addItem(name+"LR", 0)
@@ -119,17 +126,20 @@ public class SortOperation {
       .moveTo(group)
       .activate(0)
       ;
-    sample_direction_radio.getItem(name+"LR").setLabel("LR");
-    sample_direction_radio.getItem(name+"UD").setLabel("UD");
-    sample_direction_radio.getItem(name+"DD").setLabel("DD");
-    sample_direction_radio.getItem(name+"DU").setLabel("DU");
+    sample_direction_radio.getItem(name+"LR").setLabel("LEFT\nRIGHT");
+    sample_direction_radio.getItem(name+"UD").setLabel("UP\nDOWN");
+    sample_direction_radio.getItem(name+"DD").setLabel("DIAG\nDOWN");
+    sample_direction_radio.getItem(name+"DU").setLabel("DIAG\nUP");
     for (Toggle t : sample_direction_radio.getItems()) {
       t.getCaptionLabel().align(ControlP5.CENTER, CENTER);
     }
-    
+
     sort_by_radio = controls.addRadioButton(name+"sort_by")
       .setPosition(grid(5), grid(0))
       .setSize(guiObjectSize, guiObjectSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
       .setItemsPerRow(4)
       .setSpacingColumn(guiBufferSize)
       .addItem(name+"rgb", 0)
@@ -147,14 +157,17 @@ public class SortOperation {
     for (Toggle t : sort_by_radio.getItems()) {
       t.getCaptionLabel().align(ControlP5.CENTER, CENTER);
     }
-    
+
     threshold_mode_radio = controls.addRadioButton(name+"threshold_mode")
       .setPosition(grid(0), grid(1))
       .setSize(guiObjectSize, guiObjectSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
       .setItemsPerRow(6)
       .setSpacingColumn(guiBufferSize)
-      .addItem(name+">mn", 0)
-      .addItem(name+"<mn", 1)
+      .addItem(name+"<mn", 0)
+      .addItem(name+">mn", 1)
       .addItem(name+">mx", 2)
       .addItem(name+"<mx", 3)
       .addItem(name+"><", 4)
@@ -163,19 +176,22 @@ public class SortOperation {
       .moveTo(group)
       .activate(0)
       ;
-    threshold_mode_radio.getItem(name+">mn").setLabel(">mn");
-    threshold_mode_radio.getItem(name+"<mn").setLabel("<mn");
-    threshold_mode_radio.getItem(name+">mx").setLabel(">mx");
-    threshold_mode_radio.getItem(name+"<mx").setLabel("<mx");
+    threshold_mode_radio.getItem(name+"<mn").setLabel("<min");
+    threshold_mode_radio.getItem(name+">mn").setLabel(">min");
+    threshold_mode_radio.getItem(name+">mx").setLabel(">max");
+    threshold_mode_radio.getItem(name+"<mx").setLabel("<max");
     threshold_mode_radio.getItem(name+"><").setLabel("><");
     threshold_mode_radio.getItem(name+"<>").setLabel("<>");
     for (Toggle t : threshold_mode_radio.getItems()) {
       t.getCaptionLabel().align(ControlP5.CENTER, CENTER);
     }
-    
+
     sort_mode_radio = controls.addRadioButton(name+"sort_direction")
       .setPosition(grid(7), grid(1))
       .setSize(guiObjectSize, guiObjectSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
       .setItemsPerRow(4)
       .setSpacingColumn(guiBufferSize)
       .addItem(name+"FW>", 0)
@@ -193,13 +209,17 @@ public class SortOperation {
     for (Toggle t : sort_mode_radio.getItems()) {
       t.getCaptionLabel().align(ControlP5.CENTER, CENTER);
     }
-    
+
     threshold = controls.addRange(name+"threshold")
       .setLabel("threshold")
       .setPosition(grid(0), grid(2))
       .setSize(600, guiObjectSize)
       .setHandleSize(guiBufferSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
       .setRange(0, 255)
+      .setDecimalPrecision(1)
       .plugTo(this)
       .moveTo(group)
       .setRangeValues(50, 205)
@@ -207,16 +227,14 @@ public class SortOperation {
     controls.getController(name+"threshold").getCaptionLabel().align(ControlP5.CENTER, CENTER);
   }
 
-  void quickToggle(int _value) {
-    quick = boolean(_value);
-    if (quick) {
-      sort_mode_radio.hide();
+  void setQuick(boolean _value) {
+    this.quick = _value;
+    if (this.quick) {
+      this.sort_mode_radio.hide();
       controls.getController(name+"reverse").show();
-      controls.getController(name+"random").show();
     } else {
-      sort_mode_radio.show();
+      this.sort_mode_radio.show();
       controls.getController(name+"reverse").hide();
-      controls.getController(name+"random").hide();
     }
   }
 
@@ -229,26 +247,24 @@ public class SortOperation {
 
   public void sampleDirection(int _id) {
     this.sample_direction = _id;
-    println("sample_direction: "+sample_direction);
   }
   public void thresholdMode(int _id) {
     this.threshold_mode = _id;
-    println("threshold_mode: "+threshold_mode);
   }
   public void sortDirection(int _id) {
     this.sort_direction = _id;
-    println("sort_direction: "+sort_direction);
   }
   public void sortBy(int _id) {
     this.sort_by = _id;
-    println("sort_by: "+sort_by);
   }
 
+  //this method appears as a function in the main applet context, included here for portability
   int grid( int _pos) {
     return gridSize * _pos + gridOffset;
   }
 
   PImage sortPixels (PImage _image) {
+    _image.loadPixels();
     color[] px_buffer;
 
     int buffer_size = 0;
@@ -258,32 +274,8 @@ public class SortOperation {
     int x_start = 0;
     int y_start = 0;
 
-    _image.loadPixels();
-
-    // Y Axis:
-    // UP
-    // DOWN (reverse of UP)
-
-    // X Axis:
-    // LEFT
-    // RIGHT (reverse of RIGHT)
-
-    // Diagonal
-    // UP+LEFT
-    // UP+RIGHT
-    // DOWN+LEFT
-    // DOWN+RIGHT
-    // LEFT+UP
-    // LEFT+DOWN
-    // RIGHT+UP
-    // RIGHT+DOWN
-
-    // 1. Grab Pixels
-    // 2. Sort Pixels
-    // 3. Replace Pixels
-
     switch(sample_direction) {
-    case 0: // LR
+    case 0: // Left / Right (X-axis)
       px_buffer = new int[_image.width];    
       for (int a = 0; a < _image.height; a++) {
         for (int b = 0; b < px_buffer.length; b++) {
@@ -295,7 +287,7 @@ public class SortOperation {
         }
       }
       break; 
-    case 1: // UD
+    case 1: // Up / Down (Y-axis)
       px_buffer = new color[_image.height];   
       for (int a = 0; a < _image.width; a++) {
         for (int b = 0; b < px_buffer.length; b++) {
@@ -307,7 +299,7 @@ public class SortOperation {
         }
       }
       break;
-    case 2: // DD
+    case 2: // Diagonal Down (left to right)
       for (int i = 0; i < _image.width+_image.height; i++) {
 
         // logic for setting buffer size and x,y starting values
@@ -364,7 +356,7 @@ public class SortOperation {
         }
       }
       break;
-    case 3: // DU
+    case 3: // Diagonal Up
       for (int i = 0; i < _image.width+_image.height; i++) {
 
         // logic for setting buffer size and x,y starting values
@@ -448,21 +440,7 @@ public class SortOperation {
     // gather Samples
     for (int i = 0; i < _pixels.length; ++i) {    
 
-      int pixel = _pixels[i];
-
-      // future: implement RAW/HSB switch
-
-      switch(sort_by) {
-      case 0: // RAW
-      case 1: // R
-      case 2: // G
-      case 3: // B
-      case 4: // H
-      case 5: // S
-      case 6: // B
-      default:
-        break;
-      }
+      color pixel = _pixels[i];
 
       // switch for in and out point logic
       switch(this.threshold_mode) {
@@ -472,8 +450,8 @@ public class SortOperation {
             in = i;
             in_flag=true;
           }
-        } else if (!out_flag || ( i == _pixels.length-1)) {
-          if (pixel > color(this.min)) {
+        } else if (!out_flag) {
+          if (pixel > color(this.min) || ( i == _pixels.length-1)) {
             out = i;
             out_flag=true;
           }
@@ -485,8 +463,8 @@ public class SortOperation {
             in = i;
             in_flag=true;
           }
-        } else if (!out_flag || ( i == _pixels.length-1)) {
-          if (pixel < color(this.min)) {
+        } else if (!out_flag) {
+          if (pixel < color(this.min) || ( i == _pixels.length-1)) {
             out = i;
             out_flag=true;
           }
@@ -498,8 +476,8 @@ public class SortOperation {
             in = i;
             in_flag=true;
           }
-        } else if (!out_flag || ( i == _pixels.length-1)) {
-          if (pixel < color(this.max)) {
+        } else if (!out_flag ) {
+          if (pixel < color(this.max) || ( i == _pixels.length-1)) {
             out = i;
             out_flag=true;
           }
@@ -511,8 +489,8 @@ public class SortOperation {
             in = i;
             in_flag=true;
           }
-        } else if (!out_flag || ( i == _pixels.length-1)) {
-          if (pixel > color(this.max)) {
+        } else if (!out_flag ) {
+          if (pixel > color(this.max) || ( i == _pixels.length-1)) {
             out = i;
             out_flag=true;
           }
@@ -524,8 +502,8 @@ public class SortOperation {
             in = i;
             in_flag=true;
           }
-        } else if (!out_flag || ( i == _pixels.length-1)) {
-          if (pixel < color(this.min) || pixel > color(this.max)) {
+        } else if (!out_flag) {
+          if (pixel < color(this.min) || pixel > color(this.max) || ( i == _pixels.length-1)) {
             out = i;
             out_flag=true;
           }
@@ -542,14 +520,14 @@ public class SortOperation {
             in_flag=true;
             min_flag=false;
           }
-        } else if ( !out_flag || ( i == _pixels.length-1) ) {
+        } else if ( !out_flag ) {
           if (min_flag) {
-            if ( pixel > color(this.min)) {
+            if ( pixel > color(this.min) || ( i == _pixels.length-1)) {
               out = i;
               out_flag = true;
             }
           } else {
-            if ( pixel < color(this.max)) {
+            if ( pixel < color(this.max) || ( i == _pixels.length-1)) {
               out = i;
               out_flag = true;
             }
