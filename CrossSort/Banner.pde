@@ -26,7 +26,8 @@ PGraphics generateBanner() {
     "///     ///  ////////   ////   ////   ////      ////   ///  ////////   /", 
     "////////////////////////////////////////////////////////////////////////", 
     "", 
-    "It's souped up pixel sorting, yo!", 
+    "It's souped up pixel sorting, yo!",
+    "",
     "Please see README.md for an explanation of what's going on here.",
     "",
     "CREDITS:",
@@ -41,7 +42,7 @@ PGraphics generateBanner() {
   graphics.beginDraw();
   graphics.noStroke();
   graphics.fill(0, 50);
-  graphics.rect(margin_left/2, margin_top/2, 550, 260);
+  graphics.rect(margin_left/2, margin_top/2, 550, 270);
   graphics.textSize(text_size);
   graphics.textFont(mono);
   graphics.fill(255);

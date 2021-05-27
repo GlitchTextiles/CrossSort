@@ -52,18 +52,17 @@ void setup() {
 }
 
 void draw() {
-  
+
   if (buffer != null) {
     image(buffer, 0, 0);
-    if (play) GUI.operations.sort(buffer);
-    if (record) {
-      if (sequencePath != null) {
+    if (play) { 
+      GUI.operations.sort(buffer);
+      if (record && sequencePath != null) {
         buffer.save(sequencePath+"-"+nfs(sequenceIndex, 4)+".png");
         sequenceIndex++;
       }
     }
   } else {
-    image(banner,0,0);
+    image(banner, 0, 0);
   }
-  
 }
