@@ -51,8 +51,8 @@ public class SortOperation {
   public boolean quick = false;
   public boolean reverse = false;
   public boolean enable;
-  public int min = 0;
-  public int max = 0;
+  public float min = 0;
+  public float max = 0;
 
   public ControlP5 controls;
 
@@ -218,11 +218,10 @@ public class SortOperation {
       .setColorForeground(guiForeground)
       .setColorBackground(guiBackground) 
       .setColorActive(guiActive)
-      .setRange(0, 255)
-      .setDecimalPrecision(1)
+      .setRange(0, 1)
       .plugTo(this)
       .moveTo(group)
-      .setRangeValues(50, 205)
+      .setRangeValues(0.25,0.75);
       ;
     controls.getController(name+"threshold").getCaptionLabel().align(ControlP5.CENTER, CENTER);
   }
@@ -231,17 +230,19 @@ public class SortOperation {
     this.quick = _value;
     if (this.quick) {
       this.sort_mode_radio.hide();
+      this.sort_by_radio.hide();
       controls.getController(name+"reverse").show();
     } else {
       this.sort_mode_radio.show();
+      this.sort_by_radio.show();
       controls.getController(name+"reverse").hide();
     }
   }
 
   public void controlEvent(ControlEvent theControlEvent) {
     if (theControlEvent.isFrom(name+"threshold")) {
-      this.min = int(theControlEvent.getController().getArrayValue(0));
-      this.max = int(theControlEvent.getController().getArrayValue(1));
+      this.min = theControlEvent.getController().getArrayValue(0);
+      this.max = theControlEvent.getController().getArrayValue(1);
     }
   }
 
@@ -440,18 +441,21 @@ public class SortOperation {
     // gather Samples
     for (int i = 0; i < _pixels.length; ++i) {    
 
-      color pixel = _pixels[i];
+      int pixel = _pixels[i] & 0x00FFFFFF;
+      int _min = int(this.min * pow(2,24));
+      int _max = int(this.max * pow(2,24));
+      //println("pixel: "+pixel+", min: "+_min+". max: "+_max);
 
       // switch for in and out point logic
       switch(this.threshold_mode) {
       case 0: // below min - in: <= min, out: > min
         if (!in_flag) {
-          if (pixel <= color(this.min)) {
+          if (pixel <= _min) {
             in = i;
             in_flag=true;
           }
         } else if (!out_flag) {
-          if (pixel > color(this.min) || ( i == _pixels.length-1)) {
+          if (pixel > _min || ( i == _pixels.length-1)) {
             out = i;
             out_flag=true;
           }
@@ -459,12 +463,12 @@ public class SortOperation {
         break;
       case 1: // above min - in: >= min, out: < min
         if (!in_flag) {
-          if (pixel >= color(this.min)) {
+          if (pixel >= _min) {
             in = i;
             in_flag=true;
           }
         } else if (!out_flag) {
-          if (pixel < color(this.min) || ( i == _pixels.length-1)) {
+          if (pixel < _min || ( i == _pixels.length-1)) {
             out = i;
             out_flag=true;
           }
@@ -472,12 +476,12 @@ public class SortOperation {
         break;
       case 2: // above max - in: >= max, out: < max
         if (!in_flag) {
-          if (pixel >= color(this.max)) {
+          if (pixel >= _max ) {
             in = i;
             in_flag=true;
           }
         } else if (!out_flag ) {
-          if (pixel < color(this.max) || ( i == _pixels.length-1)) {
+          if (pixel < _max || ( i == _pixels.length-1)) {
             out = i;
             out_flag=true;
           }
@@ -485,12 +489,12 @@ public class SortOperation {
         break;
       case 3: // below max - in: <= max, out: > max
         if (!in_flag) {
-          if (pixel <= color(this.max)) {
+          if (pixel <= _max) {
             in = i;
             in_flag=true;
           }
         } else if (!out_flag ) {
-          if (pixel > color(this.max) || ( i == _pixels.length-1)) {
+          if (pixel > _max || ( i == _pixels.length-1)) {
             out = i;
             out_flag=true;
           }
@@ -498,12 +502,12 @@ public class SortOperation {
         break;
       case 4: // above min && below max - in: >= min && <= max, out: < min || > max
         if (!in_flag) {
-          if (pixel >= color(this.min) && pixel <= color(this.max)) {
+          if (pixel >= _min && pixel <= _max) {
             in = i;
             in_flag=true;
           }
         } else if (!out_flag) {
-          if (pixel < color(this.min) || pixel > color(this.max) || ( i == _pixels.length-1)) {
+          if (pixel < _min || pixel > _max || ( i == _pixels.length-1)) {
             out = i;
             out_flag=true;
           }
@@ -511,23 +515,23 @@ public class SortOperation {
         break;
       case 5:  // below min && above max - in: <= min || >= max, if in: <= min; then out: > min, else if in >= max; then out: < max
         if ( !in_flag ) {
-          if ( pixel <= color(this.min) ) {
+          if ( pixel <= _min ) {
             in = i;
             in_flag=true;
             min_flag=true;
-          } else if ( pixel >= color(this.max)) {
+          } else if ( pixel >= _max) {
             in = i;
             in_flag=true;
             min_flag=false;
           }
         } else if ( !out_flag ) {
           if (min_flag) {
-            if ( pixel > color(this.min) || ( i == _pixels.length-1)) {
+            if ( pixel > _min || ( i == _pixels.length-1)) {
               out = i;
               out_flag = true;
             }
           } else {
-            if ( pixel < color(this.max) || ( i == _pixels.length-1)) {
+            if ( pixel < _max || ( i == _pixels.length-1)) {
               out = i;
               out_flag = true;
             }

@@ -1,0 +1,321 @@
+{
+	"objectClass" : "SortOperation",
+	"automation" : [
+		{
+			"objectIndex" : 0,
+			"parameters" : [
+				{
+					"name" : "min",
+					"keyframes": [
+						{
+							"frame" : 0,
+							"value" : 1.0
+						},
+						{
+							"frame" : 96,
+							"value" : 0.8
+						},
+						{
+							"frame" : 192,
+							"value" : 0.6
+						},
+						{
+							"frame" : 288,
+							"value" : 0.05
+						},
+						{
+							"frame" : 384,
+							"value" : 0.05
+						},
+						{
+							"frame" : 432,
+							"value" : 0.6
+						},
+						{
+							"frame" : 480,
+							"value" : 0.8
+						},
+						{
+							"frame" : 528,
+							"value" : 1.0
+						}
+					]
+				},
+				{
+					"name" : "max",
+					"keyframes": [
+						{
+							"frame" : 0,
+							"value" : 1.0
+						},
+						{
+							"frame" : 96,
+							"value" : 1.0
+						},
+						{
+							"frame" : 192,
+							"value" : 0.75
+						},
+						{
+							"frame" : 288,
+							"value" : 0.38
+						},
+						{
+							"frame" : 384,
+							"value" : 0.38
+						},
+						{
+							"frame" : 432,
+							"value" : 0.75
+						},
+						{
+							"frame" : 480,
+							"value" : 1.0
+						},
+						{
+							"frame" : 528,
+							"value" : 1.0
+						}
+					]
+				}
+			]
+		},
+		{
+			"objectIndex" : 1,
+			"parameters" : [
+				{
+					"name" : "min",
+					"keyframes": [
+						{
+							"frame" : 10,
+							"value" : 1.0
+						},
+						{
+							"frame" : 66,
+							"value" : 0.8
+						},
+						{
+							"frame" : 172,
+							"value" : 0.6
+						},
+						{
+							"frame" : 298,
+							"value" : 0.05
+						},
+						{
+							"frame" : 343,
+							"value" : 0.05
+						},
+						{
+							"frame" : 452,
+							"value" : 0.6
+						},
+						{
+							"frame" : 480,
+							"value" : 0.8
+						},
+						{
+							"frame" : 528,
+							"value" : 1.0
+						}
+					]
+				},
+				{
+					"name" : "max",
+					"keyframes": [
+						{
+							"frame" : 0,
+							"value" : 1.0
+						},
+						{
+							"frame" : 96,
+							"value" : 1.0
+						},
+						{
+							"frame" : 192,
+							"value" : 0.75
+						},
+						{
+							"frame" : 288,
+							"value" : 0.38
+						},
+						{
+							"frame" : 384,
+							"value" : 0.38
+						},
+						{
+							"frame" : 432,
+							"value" : 0.75
+						},
+						{
+							"frame" : 480,
+							"value" : 1.0
+						},
+						{
+							"frame" : 528,
+							"value" : 1.0
+						}
+					]
+				}
+			]
+		},
+		{
+			"objectIndex" : 2,
+			"parameters" : [
+				{
+					"name" : "min",
+					"keyframes": [
+						{
+							"frame" : 10,
+							"value" : 1.0
+						},
+						{
+							"frame" : 66,
+							"value" : 0.8
+						},
+						{
+							"frame" : 172,
+							"value" : 0.6
+						},
+						{
+							"frame" : 298,
+							"value" : 0.05
+						},
+						{
+							"frame" : 343,
+							"value" : 0.05
+						},
+						{
+							"frame" : 452,
+							"value" : 0.6
+						},
+						{
+							"frame" : 480,
+							"value" : 0.8
+						},
+						{
+							"frame" : 528,
+							"value" : 1.0
+						}
+					]
+				},
+				{
+					"name" : "max",
+					"keyframes": [
+						{
+							"frame" : 0,
+							"value" : 1.0
+						},
+						{
+							"frame" : 96,
+							"value" : 1.0
+						},
+						{
+							"frame" : 192,
+							"value" : 0.75
+						},
+						{
+							"frame" : 288,
+							"value" : 0.38
+						},
+						{
+							"frame" : 384,
+							"value" : 0.38
+						},
+						{
+							"frame" : 432,
+							"value" : 0.75
+						},
+						{
+							"frame" : 480,
+							"value" : 1.0
+						},
+						{
+							"frame" : 528,
+							"value" : 1.0
+						}
+					]
+				}
+			]
+		},
+		{
+			"objectIndex" : 3,
+			"parameters" : [
+				{
+					"name" : "min",
+					"keyframes": [
+						{
+							"frame" : 10,
+							"value" : 1.0
+						},
+						{
+							"frame" : 66,
+							"value" : 0.8
+						},
+						{
+							"frame" : 172,
+							"value" : 0.6
+						},
+						{
+							"frame" : 298,
+							"value" : 0.05
+						},
+						{
+							"frame" : 343,
+							"value" : 0.05
+						},
+						{
+							"frame" : 452,
+							"value" : 0.6
+						},
+						{
+							"frame" : 480,
+							"value" : 0.8
+						},
+						{
+							"frame" : 528,
+							"value" : 1.0
+						}
+					]
+				},
+				{
+					"name" : "max",
+					"keyframes": [
+						{
+							"frame" : 0,
+							"value" : 1.0
+						},
+						{
+							"frame" : 96,
+							"value" : 1.0
+						},
+						{
+							"frame" : 192,
+							"value" : 0.75
+						},
+						{
+							"frame" : 288,
+							"value" : 0.38
+						},
+						{
+							"frame" : 384,
+							"value" : 0.38
+						},
+						{
+							"frame" : 432,
+							"value" : 0.75
+						},
+						{
+							"frame" : 480,
+							"value" : 1.0
+						},
+						{
+							"frame" : 528,
+							"value" : 1.0
+						}
+					]
+				}
+			]
+		}
+	]
+}

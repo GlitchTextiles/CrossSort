@@ -92,10 +92,102 @@ public class ControlFrame extends PApplet {
       .setColorBackground(guiBackground) 
       .setColorActive(guiActive)
       .setLabel("QUICK")
-      .plugTo(parent, "quick_sort")
+      .plugTo(this, "quick_sort")
       ;
     cp5.getController("quick_sort").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
+    cp5.addButton("batch_dir")
+      .setPosition(grid(6), grid(0))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
+      .setLabel("BATCH\nDIR")
+      .plugTo(parent, "open_batch_folder");
+    ;
+    cp5.getController("batch_dir").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+
+    cp5.addToggle("batch_toggle")
+      .setPosition(grid(7), grid(0))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
+      .setLabel("BATCH\nSTART")
+      .setValue(0)
+      .plugTo(this, "toggleBatch")
+      ;
+    cp5.getController("batch_toggle").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+
+    cp5.addButton("load_automation")
+      .setPosition(grid(8), grid(0))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
+      .setLabel("LOAD\nAUTO")
+      .plugTo(parent, "open_JSON")
+      ;
+    cp5.getController("load_automation").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+
+    cp5.addToggle("enable_automation")
+      .setPosition(grid(9), grid(0))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
+      .setLabel("EN\nAUTO")
+      .plugTo(this, "enableAutomation")
+      .hide()
+      ;
+    cp5.getController("enable_automation").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+
+    cp5.addToggle("enable_jitter")
+      .setPosition(grid(10), grid(0))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
+      .setLabel("JITTER")
+      .plugTo(this, "enableJitter")
+      .hide()
+      ;
+    cp5.getController("enable_jitter").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+
+    cp5.addButton("frame_decrement")
+      .setPosition(grid(6), grid(1))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
+      .setLabel("FRAME\n-")
+      .plugTo(this, "frameDecrement");
+    ;
+    cp5.getController("frame_decrement").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+
+    cp5.addButton("frame_increment")
+      .setPosition(grid(7), grid(1))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
+      .setLabel("FRAME\n+")
+      .plugTo(this, "frameIncrement");
+    ;
+    cp5.getController("frame_increment").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+
+    cp5.addNumberbox("frame_index")
+      .setPosition(grid(8), grid(1))
+      .setSize(2*guiObjectSize+guiBufferSize, guiObjectSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
+      .setLabel("FRAME")
+      .setMin(0)
+      .setValue(0)
+      .plugTo(this, "setFrameIndex")
+      ;
+    cp5.getController("frame_index").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
     // row 1 controls
 
@@ -122,14 +214,67 @@ public class ControlFrame extends PApplet {
     buffer=src.copy();
   }
 
+  public void enableAutomation(int _value) {
+
+    if (_value == 1) {
+      if (automationIsLoaded) {
+        automate = true;
+      } else {
+        cp5.getController("enable_automation").setValue(0);
+      }
+    } else {
+      automate = false;
+    }
+  }
+
+  public void enableJitter(int _value) {
+    if (_value == 1) {
+      if (automate) {
+        jitter = true;
+      } else {
+        cp5.getController("enable_jitter").setValue(0);
+      }
+    } else {
+      jitter = false;
+    }
+  }
+
   public void quick_sort(int _value) {
     quick = boolean(_value);
     for (SortOperation o : operations.sortOperations) {
       o.setQuick(quick);
     }
   }
-}
 
+  public void toggleBatch(int _value) {
+    cp5.getController("frame_index").setValue(0);
+    batch = boolean(_value);
+  }
+
+  public void frameIncrement() {
+    Controller numberBox = cp5.getController("frame_index");
+    int value = int(numberBox.getValue());
+    value++;
+    if (value == batchSize) {
+      cp5.getController("play").setValue(0);
+      cp5.getController("batch_toggle").setValue(0);
+    }
+    value = constrain(value, 0, batchSize);
+    numberBox.setValue(value);
+  }
+
+  public void frameDecrement() {
+    Controller numberBox = cp5.getController("frame_index");
+    int value = int(numberBox.getValue());
+    value--;
+    value = constrain(value, 0, batchSize);
+    numberBox.setValue(value);
+  }
+
+  public void setFrameIndex(int _value) {
+    frameIndex = _value;
+  }
+}
 
 public int grid( int _pos) {
   return gridSize * _pos + gridOffset;
