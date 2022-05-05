@@ -66,21 +66,6 @@ public class SortOperations {
     return _buffer;
   }
 
-  PImage alphaDiff(PImage _img1, PImage _img2) {
-    PImage diff;
-    if (_img1.width == _img2.width && _img1.height == _img2.height) {
-      diff = createImage(_img1.width, _img1.height, ARGB);
-      _img1.loadPixels();
-      _img2.loadPixels();
-      for (int i = 0; i < _img1.pixels.length; i++) {
-        diff.pixels[i] = _img1.pixels[i] == _img2.pixels[i] ? 0x00000000 : _img2.pixels[i];
-      }
-      diff.updatePixels();
-      return diff;
-    } else {
-      return null;
-    }
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
