@@ -150,7 +150,6 @@ public class ControlFrame extends PApplet {
       .setColorActive(guiActive)
       .setLabel("JITTER")
       .plugTo(this, "enableJitter")
-      .hide()
       ;
     cp5.getController("enable_jitter").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
@@ -188,6 +187,17 @@ public class ControlFrame extends PApplet {
       .plugTo(this, "setFrameIndex")
       ;
     cp5.getController("frame_index").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+    
+    cp5.addToggle("alpha_only")
+      .setPosition(grid(11), grid(0))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
+      .setLabel("ALPHA\nONLY")
+      .plugTo(this, "alphaOnlyEnable")
+      ;
+    cp5.getController("alpha_only").getCaptionLabel().align(ControlP5.CENTER, CENTER);
 
     // row 1 controls
 
@@ -214,9 +224,8 @@ public class ControlFrame extends PApplet {
     buffer=src.copy();
   }
 
-  public void enableAutomation(int _value) {
-
-    if (_value == 1) {
+  public void enableAutomation(boolean _value) {
+    if (_value) {
       if (automationIsLoaded) {
         automate = true;
       } else {
@@ -226,29 +235,25 @@ public class ControlFrame extends PApplet {
       automate = false;
     }
   }
-
-  public void enableJitter(int _value) {
-    if (_value == 1) {
-      if (automate) {
-        jitter = true;
-      } else {
-        cp5.getController("enable_jitter").setValue(0);
-      }
-    } else {
-      jitter = false;
-    }
+  
+  public void alphaOnlyEnable(boolean _value){
+    alphaOnly = _value;
   }
 
-  public void quick_sort(int _value) {
-    quick = boolean(_value);
+  public void enableJitter(boolean _value) {
+    jitter = _value;
+  }
+
+  public void quick_sort(boolean _value) {
+    quick = _value;
     for (SortOperation o : operations.sortOperations) {
       o.setQuick(quick);
     }
   }
 
-  public void toggleBatch(int _value) {
+  public void toggleBatch(boolean _value) {
     cp5.getController("frame_index").setValue(0);
-    batch = boolean(_value);
+    batch = _value;
   }
 
   public void frameIncrement() {

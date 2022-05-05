@@ -9,10 +9,6 @@ class AutomationGroup {
     automation.add(_keyFrameSet);
   }
 
-  //ArrayList<KeyFrames> get() {
-  //  return this.automation;
-  //}
-
   KeyFrames getKeyFrameSet(int _index) {
     if (_index < this.automation.size()) {
       return this.automation.get(_index);

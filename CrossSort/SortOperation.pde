@@ -13,18 +13,25 @@ public class SortOperations {
       .setCollapseMode(Accordion.MULTI)
       ;
   }
-
-  //add() and remove() create ConcurrentModification exceptions when used dynamically :(
-
   public void add() {
-    sortOperations.add(new SortOperation("Sort Operation "+(sortOperations.size()+1)+" ", controlContext));
-    accordion.addItem(sortOperations.get(sortOperations.size()-1).group).setItemHeight(grid(3)).open();
+    try {
+      sortOperations.add(new SortOperation("Sort Operation "+(sortOperations.size()+1)+" ", controlContext));
+      accordion.addItem(sortOperations.get(sortOperations.size()-1).group).setItemHeight(grid(3)).open();
+    }  
+    catch(ConcurrentModificationException e) {
+      e.printStackTrace();
+    }
   }
 
   public void remove() {
     if (sortOperations.size() > 0) {
       sortOperations.get(sortOperations.size()-1).group.remove();
-      sortOperations.remove(sortOperations.size()-1);
+      try {
+        sortOperations.remove(sortOperations.size()-1);
+      } 
+      catch(ConcurrentModificationException e) {
+        e.printStackTrace();
+      }
     }
   }
 
@@ -32,15 +39,52 @@ public class SortOperations {
     return sortOperations.size();
   }
 
-  public void sort(PImage _image) {
+  public PImage sort(PImage _image) {
+    PImage _buffer = _image.copy();
     for (SortOperation o : sortOperations) {  
       for (int i = 0; i < iterations; i++) {
-
-        if (o.enable) o.sortPixels(_image);
+        if (o.enable) o.sortPixels(_buffer, null);
       }
+    }
+    return _buffer;
+  }
+
+  public PImage sortAlpha(PImage _image) {
+
+    PImage _buffer = _image.copy();
+    _buffer.loadPixels();
+    ArrayList<Integer> _mask = new ArrayList<Integer>();
+    for (int i = 0; i < _image.pixels.length; i++) _mask.add(0);
+    for (SortOperation o : sortOperations) {  
+      for (int i = 0; i < iterations; i++) {
+        if (o.enable) o.sortPixels(_buffer, _mask);
+      }
+    }
+    int[] _theMask = new int[_image.pixels.length];
+    for (int i = 0; i < _image.pixels.length; i++) _theMask[i] = _mask.get(i);
+    _buffer.mask(_theMask);
+    return _buffer;
+  }
+
+  PImage alphaDiff(PImage _img1, PImage _img2) {
+    PImage diff;
+    if (_img1.width == _img2.width && _img1.height == _img2.height) {
+      diff = createImage(_img1.width, _img1.height, ARGB);
+      _img1.loadPixels();
+      _img2.loadPixels();
+      for (int i = 0; i < _img1.pixels.length; i++) {
+        diff.pixels[i] = _img1.pixels[i] == _img2.pixels[i] ? 0x00000000 : _img2.pixels[i];
+      }
+      diff.updatePixels();
+      return diff;
+    } else {
+      return null;
     }
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 public class SortOperation {
 
@@ -50,15 +94,15 @@ public class SortOperation {
   public int sort_by = 0; // 0 = RAW, 1 = R, 2 = G, 3 = B, 4 = HUE,
   public boolean quick = false;
   public boolean reverse = false;
+  public boolean rgbMode = false;
   public boolean enable;
-  public float min = 0;
-  public float max = 0;
 
   public ControlP5 controls;
 
   public Group group;
 
   public Range threshold;
+  public Range[] rgbThresholds = new Range[3];
   public RadioButton sample_direction_radio;
   public RadioButton sort_mode_radio;
   public RadioButton threshold_mode_radio;
@@ -158,6 +202,19 @@ public class SortOperation {
       t.getCaptionLabel().align(ControlP5.CENTER, CENTER);
     }
 
+    controls.addToggle(name+"rgbThresh")
+      .setPosition(grid(9), grid(0))
+      .setSize(guiObjectSize, guiObjectSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
+      .setLabel("RGB")
+      .setValue(false)
+      .plugTo(this, "rgbThresh")
+      .moveTo(group)
+      ;
+    controls.getController(name+"rgbThresh").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+
     threshold_mode_radio = controls.addRadioButton(name+"threshold_mode")
       .setPosition(grid(0), grid(1))
       .setSize(guiObjectSize, guiObjectSize)
@@ -219,11 +276,76 @@ public class SortOperation {
       .setColorBackground(guiBackground) 
       .setColorActive(guiActive)
       .setRange(0, 1)
-      .plugTo(this)
       .moveTo(group)
-      .setRangeValues(0.25,0.75);
+      .setRangeValues(0.25, 0.75)
+      .plugTo(this)
       ;
     controls.getController(name+"threshold").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+
+    rgbThresholds[0] = controls.addRange(name+"rThreshold")
+      .setLabel("red")
+      .setPosition(grid(0), grid(2))
+      .setSize(600, guiObjectSize/3)
+      .setHandleSize(guiBufferSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
+      .setRange(0, 1)
+      .moveTo(group)
+      .setRangeValues(0.25, 0.75)
+      .plugTo(this)
+      .hide()
+      ;
+    controls.getController(name+"rThreshold").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+
+    rgbThresholds[1] = controls.addRange(name+"gThreshold")
+      .setLabel("green")
+      .setPosition(grid(0), grid(2)+guiObjectSize/3)
+      .setSize(600, guiObjectSize/3)
+      .setHandleSize(guiBufferSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
+      .setRange(0, 1)
+      .moveTo(group)
+      .setRangeValues(0.25, 0.75)
+      .plugTo(this)
+      .hide()
+      ;
+    controls.getController(name+"gThreshold").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+
+
+    rgbThresholds[2] = controls.addRange(name+"bThreshold")
+      .setLabel("blue")
+      .setPosition(grid(0), grid(2)+2*guiObjectSize/3)
+      .setSize(600, guiObjectSize/3)
+      .setHandleSize(guiBufferSize)
+      .setColorForeground(guiForeground)
+      .setColorBackground(guiBackground) 
+      .setColorActive(guiActive)
+      .setRange(0, 1)
+      .moveTo(group)
+      .setRangeValues(0.25, 0.75)
+      .plugTo(this)
+      .hide()
+      ;
+    controls.getController(name+"bThreshold").getCaptionLabel().align(ControlP5.CENTER, CENTER);
+  }
+
+  void rgbThresh(boolean _value) {
+    this.rgbMode = _value;
+    if (this.rgbMode) {
+      this.sort_by_radio.hide();
+      threshold.hide();
+      for (int i = 0; i < 3; i++)rgbThresholds[i].show();
+    } else {
+      threshold.show();
+      for (int i = 0; i < 3; i++)rgbThresholds[i].hide();
+      if (this.quick) {
+      } else {
+        this.sort_by_radio.show();
+      }
+    }
   }
 
   void setQuick(boolean _value) {
@@ -233,16 +355,11 @@ public class SortOperation {
       this.sort_by_radio.hide();
       controls.getController(name+"reverse").show();
     } else {
+      if (!this.rgbMode) {
+        this.sort_by_radio.show();
+      }
       this.sort_mode_radio.show();
-      this.sort_by_radio.show();
       controls.getController(name+"reverse").hide();
-    }
-  }
-
-  public void controlEvent(ControlEvent theControlEvent) {
-    if (theControlEvent.isFrom(name+"threshold")) {
-      this.min = theControlEvent.getController().getArrayValue(0);
-      this.max = theControlEvent.getController().getArrayValue(1);
     }
   }
 
@@ -264,39 +381,47 @@ public class SortOperation {
     return gridSize * _pos + gridOffset;
   }
 
-  PImage sortPixels (PImage _image) {
-    _image.loadPixels();
-    color[] px_buffer;
-
+  PImage sortPixels (PImage _image, ArrayList<Integer> _mask) {
+    int[] px_image;
     int buffer_size = 0;
-
+    ArrayList<Integer> _maskStrip;
     int x = 0;
     int y = 0; 
     int x_start = 0;
     int y_start = 0;
-
+    _image.loadPixels();
     switch(sample_direction) {
     case 0: // Left / Right (X-axis)
-      px_buffer = new int[_image.width];    
+      px_image = new int[_image.width]; 
       for (int a = 0; a < _image.height; a++) {
-        for (int b = 0; b < px_buffer.length; b++) {
-          px_buffer[b] = _image.pixels[a*_image.width+b];
+        _maskStrip = new ArrayList<Integer>();
+        for (int b = 0; b < px_image.length; b++) {
+          px_image[b] = _image.pixels[a*_image.width+b];
+          _maskStrip.add(0);
         }
-        px_buffer = thresholdSort(px_buffer);
-        for (int b = 0; b < px_buffer.length; b++) {
-          _image.pixels[a*_image.width+b] = px_buffer[b];
+
+        px_image = sortPixelArray(px_image, _maskStrip);
+
+        for (int b = 0; b < px_image.length; b++) {
+          _image.pixels[a*_image.width+b] = px_image[b];
+          if (_mask != null && _mask.get(a*_image.width+b) == 0) _mask.set(a*_image.width+b, _maskStrip.get(b));
         }
       }
       break; 
     case 1: // Up / Down (Y-axis)
-      px_buffer = new color[_image.height];   
+      px_image = new int[_image.height];
       for (int a = 0; a < _image.width; a++) {
-        for (int b = 0; b < px_buffer.length; b++) {
-          px_buffer[b] = _image.pixels[b*_image.width+a];
+        _maskStrip = new ArrayList<Integer>();
+        for (int b = 0; b < px_image.length; b++) {
+          px_image[b] = _image.pixels[b*_image.width+a];
+          _maskStrip.add(0);
         }
-        px_buffer = thresholdSort(px_buffer);
-        for (int b = 0; b < px_buffer.length; b++) {
-          _image.pixels[b*_image.width+a] = px_buffer[b];
+        
+        px_image = sortPixelArray(px_image, _maskStrip);
+        
+        for (int b = 0; b < px_image.length; b++) {
+          _image.pixels[b*_image.width+a] = px_image[b];
+          if (_mask != null && _mask.get(b*_image.width+a) == 0) _mask.set(b*_image.width+a, _maskStrip.get(b));
         }
       }
       break;
@@ -333,25 +458,27 @@ public class SortOperation {
         }
 
         // set buffer size
-        px_buffer=new color[buffer_size];
-
+        px_image = new int[buffer_size];
+        _maskStrip = new ArrayList<Integer>();
+        for (int k = 0; k < buffer_size; k++) _maskStrip.add(0);
         // fill the buffer
         x=x_start;
         y=y_start;
-        for (int j = 0; j < px_buffer.length; j++) {
-          px_buffer[j] = _image.pixels[y*_image.width+x];
+        for (int j = 0; j < px_image.length; j++) {
+          px_image[j] = _image.pixels[y*_image.width+x];
           x--;
           y--;
         }
 
         // perform sorting operations
-        px_buffer = thresholdSort(px_buffer);
+        px_image = sortPixelArray(px_image, _maskStrip);
 
         // write the sorted pixels back to the buffer
         x=x_start;
         y=y_start;
-        for (int j = 0; j < px_buffer.length; j++) {
-          _image.pixels[y*_image.width+x]=px_buffer[j];
+        for (int j = 0; j < px_image.length; j++) {
+          _image.pixels[y*_image.width+x]=px_image[j];
+          if (_mask != null &&  _mask.get(y*_image.width+x) == 0) _mask.set(y*_image.width+x, _maskStrip.get(j));
           x--;
           y--;
         }
@@ -390,25 +517,27 @@ public class SortOperation {
         }
 
         // set buffer size
-        px_buffer=new color[buffer_size];
-
+        px_image=new int[buffer_size];
+        _maskStrip = new ArrayList<Integer>();
+        for (int k = 0; k < buffer_size; k++) _maskStrip.add(0);
         // fill the buffer
         x=x_start;
         y=y_start;
-        for (int j = 0; j < px_buffer.length; j++) {
-          px_buffer[j] = _image.pixels[y*_image.width+x];
+        for (int j = 0; j < px_image.length; j++) {
+          px_image[j] = _image.pixels[y*_image.width+x];
           x++;
           y--;
         }
 
         // perform sorting operations
-        px_buffer = thresholdSort(px_buffer);
+        px_image = sortPixelArray(px_image, _maskStrip);
 
         // write the sorted pixels back to the buffer
         x=x_start;
         y=y_start;
-        for (int j = 0; j < px_buffer.length; j++) {
-          _image.pixels[y*_image.width+x]=px_buffer[j];
+        for (int j = 0; j < px_image.length; j++) {
+          _image.pixels[y*_image.width+x]=px_image[j];
+          if (_mask != null &&  _mask.get(y*_image.width+x) == 0) _mask.set(y*_image.width+x, _maskStrip.get(j));
           x++;
           y--;
         }
@@ -421,11 +550,34 @@ public class SortOperation {
     return _image;
   }
 
-  color[] thresholdSort(color[] _pixels) {
+  int[] sortPixelArray(int[] _pxArray, ArrayList<Integer> _mask) {
+    int min;
+    int max;
+    if (this.rgbMode) {
+      int[] new_px = new int[_pxArray.length];
+      for (int i = 0; i < new_px.length; i++) new_px[i] = 0xff000000;
+      int[] channel = new int[_pxArray.length];
+      for (int ch = 0; ch < 3; ch++) {
+        for (int i = 0; i < _pxArray.length; i++) channel[i] = (_pxArray[i] >> (8*(2-ch))) & 0xff;
+        min = int(rgbThresholds[ch].getArrayValue(0) * 255);
+        max = int(rgbThresholds[ch].getArrayValue(1) * 255);
+        channel = thresholdSort(min, max, channel, _mask);
+        for (int i = 0; i < _pxArray.length; i++) {
+          new_px[i] |= (channel[i] << (8*(2-ch)));
+        }
+      }
+      for (int i = 0; i < _pxArray.length; i++) _pxArray[i] = new_px[i];
+    } else {
+      min = int(threshold.getArrayValue(0) * pow(2, 24));
+      max = int(threshold.getArrayValue(1) * pow(2, 24));
+      _pxArray = thresholdSort(min, max, _pxArray, _mask);
+    }
+    return _pxArray;
+  }
 
+  int[] thresholdSort(int _min, int _max, int[] _pixels, ArrayList<Integer> _maskStrip) {
     int in = 0;
     int out = 0;
-
     boolean in_flag = false;
     boolean out_flag = false;
     boolean min_flag = false;
@@ -440,12 +592,7 @@ public class SortOperation {
 
     // gather Samples
     for (int i = 0; i < _pixels.length; ++i) {    
-
-      int pixel = _pixels[i] & 0x00FFFFFF;
-      int _min = int(this.min * pow(2,24));
-      int _max = int(this.max * pow(2,24));
-      //println("pixel: "+pixel+", min: "+_min+". max: "+_max);
-
+      int pixel = _pixels[i] & 0x00FFFFFF; // strip alpha layer
       // switch for in and out point logic
       switch(this.threshold_mode) {
       case 0: // below min - in: <= min, out: > min
@@ -468,7 +615,7 @@ public class SortOperation {
             in_flag=true;
           }
         } else if (!out_flag) {
-          if (pixel < _min || ( i == _pixels.length-1)) {
+          if (pixel < _min || ( i == _pixels.length-1 )) {
             out = i;
             out_flag=true;
           }
@@ -541,7 +688,7 @@ public class SortOperation {
       }
 
       if ( in_flag && out_flag ) {
-        int[] sample = new int[ out - in ];
+        int[] sample = new int[ out - in];
 
         for (int j = 0; j < sample.length; ++j) {
           sample[j]=_pixels[j+in];
@@ -555,7 +702,8 @@ public class SortOperation {
         }
 
         for (int j = 0; j < sample.length; ++j) {
-          _pixels[j+in]=sample[j];
+          _pixels[j+in] = sample[j];
+          _maskStrip.set(j+in, 255);
         }
 
         in_flag = false;

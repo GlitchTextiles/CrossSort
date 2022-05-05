@@ -1,17 +1,23 @@
 import controlP5.*;
 import java.util.*;
 
+import java.awt.image.*;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+
 String inputPath, sequencePath, stillPath, batchDirectory, batchOutputDirectory;
 
-public boolean play, record, quick, batch, automate, automationIsLoaded, jitter;
+public boolean play, record, quick, batch, automate, automationIsLoaded, jitter, alphaOnly;
 
 ArrayList<File> batchFileList;
 AutomationGroup automationGroup;
 
 KeyFrames min1, max1, min2, max2, min3, max3, min4, max4;
 
-PImage src=null;
-PImage buffer=null;
+PImage src = null;
+PImage buffer = null;
+PImage sorted = null;
 PGraphics banner;
 int sequenceIndex = 0;
 int iterations=0;
@@ -71,16 +77,15 @@ void draw() {
   switch(mode) {
   case "single":
     if (buffer != null) {
+      background(color(255, 0, 0));
       image(buffer, 0, 0);
       if (play) {
         if (record && sequencePath != null) {
           buffer.save(sequencePath+"-"+nfs(sequenceIndex, 4)+".png");
           sequenceIndex++;
         }
-        if (quick) {
-          buffer=src.copy();
-        }
-        GUI.operations.sort(buffer);
+        if (quick) buffer = src.copy();
+        buffer = GUI.operations.sort(buffer);
       } else {
       }
     } else {
@@ -94,11 +99,15 @@ void draw() {
       if (width != frame.width || height != frame.height) {
         surface.setSize(frame.width, frame.height);
       }
-      if (automate) applyAutomation(frameIndex);
-      GUI.operations.sort(frame);
-      image(frame, 0, 0);
+      if (automate) {
+        applyAutomation(frameIndex);
+      } else if (jitter) {
+        applyJitter();
+      }
+      sorted = alphaOnly ? GUI.operations.sortAlpha(frame) : GUI.operations.sort(frame);
+      image(sorted, 0, 0);
       if (play) {
-        if (batch) frame.save(batchDirectory+"/sorted/"+nf(frameIndex, 4)+".png");
+        if (batch) sorted.save(batchDirectory+"/sorted/"+nf(frameIndex, 4)+".png");
         GUI.frameIncrement();
       }
     }
@@ -109,12 +118,10 @@ void draw() {
   }
 }
 
-void applyAutomation(int _frameIndex) {
-  float _min = 0;
-  float _max = 0;
+void applyJitter() {
   for (int i = 0; i < GUI.operations.sortOperations.size(); i++) {
-    _min = automationGroup.getKeyFrameSet(i, "min").getValue(_frameIndex);
-    _max = automationGroup.getKeyFrameSet(i, "max").getValue(_frameIndex);
+    float _min = GUI.operations.sortOperations.get(i).threshold.getMin();
+    float _max = GUI.operations.sortOperations.get(i).threshold.getMax();
     if (jitter) {
       _min = constrain(_min+random(-0.125, 0.125), 0.0, 1.0);
       _max = constrain(_max+random(-0.125, 0.125), 0.0, 1.0);
@@ -122,6 +129,37 @@ void applyAutomation(int _frameIndex) {
     GUI.operations.sortOperations.get(i).threshold.setRangeValues(_min, _max);
   }
 }
+
+void applyAutomation(int _frameIndex) {
+  float _min = 0;
+  float _max = 0;
+  for (int i = 0; i < GUI.operations.sortOperations.size(); i++) {
+
+    if (GUI.operations.sortOperations.get(i).rgbMode) {
+      for(int ch = 0 ; ch < 3 ; ch++){
+        float rmin = automationGroup.getKeyFrameSet(i, "rmin").getValue(_frameIndex);
+        float rmax = automationGroup.getKeyFrameSet(i, "rmax").getValue(_frameIndex);
+        float gmin = automationGroup.getKeyFrameSet(i, "gmin").getValue(_frameIndex);
+        float gmax = automationGroup.getKeyFrameSet(i, "gmax").getValue(_frameIndex);
+        float bmin = automationGroup.getKeyFrameSet(i, "bmin").getValue(_frameIndex);
+        float bmax = automationGroup.getKeyFrameSet(i, "bmax").getValue(_frameIndex);
+        GUI.operations.sortOperations.get(i).rgbThresholds[0].setRangeValues(rmin, rmax);
+        GUI.operations.sortOperations.get(i).rgbThresholds[1].setRangeValues(gmin, gmax);
+        GUI.operations.sortOperations.get(i).rgbThresholds[2].setRangeValues(bmin, bmax);
+      }
+      
+    } else {
+      _min = automationGroup.getKeyFrameSet(i, "min").getValue(_frameIndex);
+      _max = automationGroup.getKeyFrameSet(i, "max").getValue(_frameIndex);
+      if (jitter) {
+        _min = constrain(_min+random(-0.125, 0.125), 0.0, 1.0);
+        _max = constrain(_max+random(-0.125, 0.125), 0.0, 1.0);
+      }
+      GUI.operations.sortOperations.get(i).threshold.setRangeValues(_min, _max);
+    }
+  }
+}
+
 
 void loadAutomation(String _path) {
   JSONObject automationJSON;
