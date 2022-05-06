@@ -13,6 +13,7 @@ public class SortOperations {
       .setCollapseMode(Accordion.MULTI)
       ;
   }
+  
   public void add() {
     try {
       sortOperations.add(new SortOperation("Sort Operation "+(sortOperations.size()+1)+" ", controlContext));
@@ -49,6 +50,24 @@ public class SortOperations {
     return _buffer;
   }
 
+  public BufferedImage sort(BufferedImage _image) {
+    WritableRaster wr = _image.getColorModel().createCompatibleWritableRaster(_image.getWidth(),_image.getHeight());
+    WritableRaster wr2 = _image.getRaster();
+    double[] sample = new double[3];
+    for(int y = 0; y< _image.getHeight();y++){
+      for(int x = 0; x< _image.getWidth();x++){
+        wr2.getPixel(x,y,sample);
+        wr.setPixel(x,y,sample);
+      }
+    }
+    for (SortOperation o : sortOperations) {  
+      for (int i = 0; i < iterations; i++) {
+        if (o.enable) o.sortPixels(wr, null);
+      }
+    }
+    return new BufferedImage(_image.getColorModel(), wr, false, null);
+  }
+
   public PImage sortAlpha(PImage _image) {
 
     PImage _buffer = _image.copy();
@@ -65,7 +84,6 @@ public class SortOperations {
     _buffer.mask(_theMask);
     return _buffer;
   }
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -366,6 +384,173 @@ public class SortOperation {
     return gridSize * _pos + gridOffset;
   }
 
+  void sortPixels (WritableRaster _image, ArrayList<Integer> _mask) {
+    double[][] px_image;
+    double[] sample;
+    int buffer_size = 0;
+    ArrayList<Integer> _maskStrip;
+    int x = 0;
+    int y = 0; 
+    int x_start = 0;
+    int y_start = 0;
+    switch(sample_direction) {
+    case 0: // Left / Right (X-axis)
+      px_image = new double[_image.getWidth()][3]; 
+      for (int a = 0; a < _image.getHeight(); a++) {
+        _maskStrip = new ArrayList<Integer>();
+        for (int b = 0; b < px_image.length; b++) {
+          _image.getPixel(b, a, px_image[b]);
+          _maskStrip.add(0);
+        }
+
+        px_image = sortPixelArray(px_image, _maskStrip);
+
+        for (int b = 0; b < px_image.length; b++) {
+          _image.setPixel(b, a, px_image[b]);
+          if (_mask != null && _mask.get(a*_image.getWidth()+b) == 0) _mask.set(a*_image.getWidth()+b, _maskStrip.get(b));
+        }
+      }
+      break; 
+    case 1: // Up / Down (Y-axis)
+      px_image = new double[_image.getHeight()][3];
+      for (int a = 0; a < _image.getWidth(); a++) {
+        _maskStrip = new ArrayList<Integer>();
+        for (int b = 0; b < px_image.length; b++) {
+          _image.getPixel(a, b, px_image[b]);
+          _maskStrip.add(0);
+        }
+
+        px_image = sortPixelArray(px_image, _maskStrip);
+
+        for (int b = 0; b < px_image.length; b++) {
+          _image.setPixel(a, b, px_image[b]);
+          if (_mask != null && _mask.get(b*_image.getWidth()+a) == 0) _mask.set(b*_image.getWidth()+a, _maskStrip.get(b));
+        }
+      }
+      break;
+    case 2: // Diagonal Down (left to right)
+      for (int i = 0; i < _image.getWidth()+_image.getHeight(); i++) {
+
+        // logic for setting buffer size and x,y starting values
+        if (_image.getWidth() < _image.getHeight()) {
+          x_start=_image.getWidth()-1;
+          y_start=(_image.getHeight()-1)-(i-_image.getWidth());
+          if (i < _image.getWidth()) {
+            x_start=i;
+            y_start=_image.getHeight()-1;
+            buffer_size = i+1;
+          } else if (i >= _image.getWidth() && i < _image.getHeight()) {
+            buffer_size = _image.getWidth();
+          } else {
+            buffer_size = _image.getHeight()-(i-_image.getWidth());
+          }
+        } else if (_image.getWidth() >= _image.getHeight()) {
+          x_start=i;
+          y_start=_image.getHeight()-1;
+          if (i < _image.getHeight()) {
+            buffer_size = i+1;
+          } else if (i >= _image.getHeight() && i < _image.getWidth()) {
+            buffer_size = _image.getHeight();
+          } else {
+            x_start=_image.getWidth()-1;
+            y_start=(_image.getHeight()-1)-(i-_image.getWidth());
+            buffer_size = _image.getHeight()-(i-_image.getWidth());
+          }
+        } else {
+          println("[!] image dimension error in diagonal down (DD) logic");
+        }
+
+        // set buffer size
+        px_image = new double[buffer_size][3];
+        _maskStrip = new ArrayList<Integer>();
+        for (int k = 0; k < buffer_size; k++) _maskStrip.add(0);
+        // fill the buffer
+        x=x_start;
+        y=y_start;
+        for (int j = 0; j < px_image.length; j++) {
+          _image.getPixel(x,y,px_image[j]);
+          x--;
+          y--;
+        }
+
+        // perform sorting operations
+        px_image = sortPixelArray(px_image, _maskStrip);
+
+        // write the sorted pixels back to the buffer
+        x=x_start;
+        y=y_start;
+        for (int j = 0; j < px_image.length; j++) {
+          _image.setPixel(x, y, px_image[j]);
+          if (_mask != null &&  _mask.get(y*_image.getWidth()+x) == 0) _mask.set(y*_image.getWidth()+x, _maskStrip.get(j));
+          x--;
+          y--;
+        }
+      }
+      break;
+    case 3: // Diagonal Up
+      for (int i = 0; i < _image.getWidth()+_image.getHeight(); i++) {
+
+        // logic for setting buffer size and x,y starting values
+        if (_image.getWidth() < _image.getHeight()) {
+          x_start=0;
+          y_start=i;
+          if (i < _image.getWidth()) {
+            buffer_size = i+1;
+          } else if (i >= _image.getWidth() && i < _image.getHeight()) {
+            buffer_size = _image.getWidth();
+          } else {
+            x_start=i-_image.getHeight();
+            y_start=_image.getHeight()-1;
+            buffer_size = _image.getWidth()-(i -_image.getHeight());
+          }
+        } else if (_image.getWidth() >= _image.getHeight()) {
+          x_start=i-_image.getHeight();
+          y_start=_image.getHeight()-1;
+          if (i < _image.getHeight()) {
+            x_start=0;
+            y_start=i;
+            buffer_size = i+1;
+          } else if ( i >= _image.getHeight() && i < _image.getWidth()) {
+            buffer_size = _image.getHeight()-1;
+          } else {
+            buffer_size = _image.getHeight()-(i - _image.getWidth());
+          }
+        } else {
+          println("[!] image dimension error in diagonal up (DU) logic");
+        }
+
+        // set buffer size
+        px_image = new double[buffer_size][3];
+        _maskStrip = new ArrayList<Integer>();
+        for (int k = 0; k < buffer_size; k++) _maskStrip.add(0);
+        // fill the buffer
+        x=x_start;
+        y=y_start;
+        for (int j = 0; j < px_image.length; j++) {
+          _image.getPixel(x,y,px_image[j]);
+          x++;
+          y--;
+        }
+
+        // perform sorting operations
+        px_image = sortPixelArray(px_image, _maskStrip);
+
+        // write the sorted pixels back to the buffer
+        x=x_start;
+        y=y_start;
+        for (int j = 0; j < px_image.length; j++) {
+          _image.setPixel(x, y, px_image[j]);
+          if (_mask != null &&  _mask.get(y*_image.getWidth()+x) == 0) _mask.set(y*_image.getWidth()+x, _maskStrip.get(j));
+          x++;
+          y--;
+        }
+      }
+      break;
+    default:
+      break;
+    }
+  }
+
   PImage sortPixels (PImage _image, ArrayList<Integer> _mask) {
     int[] px_image;
     int buffer_size = 0;
@@ -401,9 +586,9 @@ public class SortOperation {
           px_image[b] = _image.pixels[b*_image.width+a];
           _maskStrip.add(0);
         }
-        
+
         px_image = sortPixelArray(px_image, _maskStrip);
-        
+
         for (int b = 0; b < px_image.length; b++) {
           _image.pixels[b*_image.width+a] = px_image[b];
           if (_mask != null && _mask.get(b*_image.width+a) == 0) _mask.set(b*_image.width+a, _maskStrip.get(b));
@@ -558,6 +743,164 @@ public class SortOperation {
       _pxArray = thresholdSort(min, max, _pxArray, _mask);
     }
     return _pxArray;
+  }
+
+  double[][] sortPixelArray(double[][] _pxArray, ArrayList<Integer> _mask) {
+    int min, max;
+    if (this.rgbMode) {
+      int[] channel;
+      channel = new int[_pxArray.length];
+      for (int ch = 0 ; ch < _pxArray[0].length; ch++) {
+        for (int i = 0; i < _pxArray.length; i++) channel[i] = (int) _pxArray[i][ch];
+        min = int(rgbThresholds[ch].getArrayValue(0) * pow(2, 16));
+        max = int(rgbThresholds[ch].getArrayValue(1) * pow(2, 16));
+        channel = thresholdSort(min, max, channel, _mask);
+        for (int i = 0; i < _pxArray.length; i++) _pxArray[i][ch] = (double) channel[i];
+      }
+    } else {
+      min = int(threshold.getArrayValue(0) * pow(2, 16));
+      max = int(threshold.getArrayValue(1) * pow(2, 16));
+      _pxArray = thresholdSort(min, max, _pxArray, _mask);
+    }
+    return _pxArray;
+  }
+  
+  double[][] thresholdSort(int _min, int _max, double[][] _pixels, ArrayList<Integer> _maskStrip) {
+    int in = 0;
+    int out = 0;
+    boolean in_flag = false;
+    boolean out_flag = false;
+    boolean min_flag = false;
+
+    // Threshold Modes
+    // 0: below min - in: <= min, out: > min
+    // 1: above min - in: >= min, out: < min
+    // 2: above max - in: >= max, out: < max
+    // 3: below max - in: <= max, out: > max
+    // 4: above min && below max - in: >= min && <= max, out: < min || > max
+    // 5: below min && above max - in: <= min || >= max, if in: <= min; then out: > min, else if in >= max; then out: < max
+
+    // gather Samples
+    for (int i = 0; i < _pixels.length; ++i) {    
+      float pixel = pixelRGBAvg(_pixels[i]); // strip alpha layer
+      // switch for in and out point logic
+      switch(this.threshold_mode) {
+      case 0: // below min - in: <= min, out: > min
+        if (!in_flag) {
+          if (pixel <= _min) {
+            in = i;
+            in_flag=true;
+          }
+        } else if (!out_flag) {
+          if (pixel > _min || ( i == _pixels.length-1)) {
+            out = i;
+            out_flag=true;
+          }
+        }
+        break;
+      case 1: // above min - in: >= min, out: < min
+        if (!in_flag) {
+          if (pixel >= _min) {
+            in = i;
+            in_flag=true;
+          }
+        } else if (!out_flag) {
+          if (pixel < _min || ( i == _pixels.length-1 )) {
+            out = i;
+            out_flag=true;
+          }
+        }
+        break;
+      case 2: // above max - in: >= max, out: < max
+        if (!in_flag) {
+          if (pixel >= _max ) {
+            in = i;
+            in_flag=true;
+          }
+        } else if (!out_flag ) {
+          if (pixel < _max || ( i == _pixels.length-1)) {
+            out = i;
+            out_flag=true;
+          }
+        }
+        break;
+      case 3: // below max - in: <= max, out: > max
+        if (!in_flag) {
+          if (pixel <= _max) {
+            in = i;
+            in_flag=true;
+          }
+        } else if (!out_flag ) {
+          if (pixel > _max || ( i == _pixels.length-1)) {
+            out = i;
+            out_flag=true;
+          }
+        }
+        break;
+      case 4: // above min && below max - in: >= min && <= max, out: < min || > max
+        if (!in_flag) {
+          if (pixel >= _min && pixel <= _max) {
+            in = i;
+            in_flag=true;
+          }
+        } else if (!out_flag) {
+          if (pixel < _min || pixel > _max || ( i == _pixels.length-1)) {
+            out = i;
+            out_flag=true;
+          }
+        }
+        break;
+      case 5:  // below min && above max - in: <= min || >= max, if in: <= min; then out: > min, else if in >= max; then out: < max
+        if ( !in_flag ) {
+          if ( pixel <= _min ) {
+            in = i;
+            in_flag=true;
+            min_flag=true;
+          } else if ( pixel >= _max) {
+            in = i;
+            in_flag=true;
+            min_flag=false;
+          }
+        } else if ( !out_flag ) {
+          if (min_flag) {
+            if ( pixel > _min || ( i == _pixels.length-1)) {
+              out = i;
+              out_flag = true;
+            }
+          } else {
+            if ( pixel < _max || ( i == _pixels.length-1)) {
+              out = i;
+              out_flag = true;
+            }
+          }
+        }
+        break;
+      }
+
+      if ( in_flag && out_flag ) {
+        double[][] sample = new double[ out - in ][];
+
+        for (int j = 0; j < sample.length; ++j) {
+          sample[j]=_pixels[j+in];
+        }
+        //will work on the pixel by pixel sorting functionality for 24bit images later
+        //if (quick) {
+          Arrays.sort(sample, arrayComparator);
+          if (reverse) Collections.reverse(Arrays.asList(sample));
+        //} else {
+        //  sample=pixelSort(sample);
+        //}
+
+        for (int j = 0; j < sample.length; ++j) {
+          _pixels[j+in] = sample[j];
+          _maskStrip.set(j+in, 255);
+        }
+
+        in_flag = false;
+        out_flag = false;
+      }
+    }
+    return _pixels;
   }
 
   int[] thresholdSort(int _min, int _max, int[] _pixels, ArrayList<Integer> _maskStrip) {

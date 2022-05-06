@@ -1,6 +1,8 @@
 import controlP5.*;
-import java.util.*;
-
+import java.util.ConcurrentModificationException;
+import java.util.Collections;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
@@ -8,7 +10,7 @@ import javax.imageio.ImageIO;
 
 String inputPath, sequencePath, stillPath, batchDirectory, batchOutputDirectory;
 
-public boolean play, record, quick, batch, automate, automationIsLoaded, jitter, alphaOnly;
+public boolean play, record, quick, batch, automate, automationIsLoaded, jitter, alphaOnly, hdr;
 
 ArrayList<File> batchFileList;
 AutomationGroup automationGroup;
@@ -18,6 +20,14 @@ KeyFrames min1, max1, min2, max2, min3, max3, min4, max4;
 PImage src = null;
 PImage buffer = null;
 PImage sorted = null;
+
+BufferedImage srcHDR= null;
+ColorModel srcHDR_cm = null;
+WritableRaster srcHDR_wr = null;
+
+BufferedImage bufferHDR = null;
+
+int depth = 0;
 PGraphics banner;
 int sequenceIndex = 0;
 int iterations=0;
@@ -73,39 +83,43 @@ void setup() {
 }
 
 void draw() {
-
+  background(0);
   switch(mode) {
   case "single":
-    if (buffer != null) {
-      background(color(255, 0, 0));
-      image(buffer, 0, 0);
-      if (play) {
-        if (record && sequencePath != null) {
-          buffer.save(sequencePath+"-"+nfs(sequenceIndex, 4)+".png");
-          sequenceIndex++;
-        }
-        if (quick) buffer = src.copy();
-        buffer = GUI.operations.sort(buffer);
-      } else {
+    if (hdr) {
+      bufferHDR = srcHDR.getSubimage(0,0,srcHDR.getWidth(),srcHDR.getHeight());
+      BufferedImage sorted = GUI.operations.sort(bufferHDR);
+      if(play){
+        saveHDR(sorted, new File("/Users/admin/Documents/16bit.png"));
+        exit();
       }
+      image(bufferedImageToPImage(sorted), 0, 0);
     } else {
-      image(banner, 0, 0);
+      image(buffer, 0, 0);
+      if (record && sequencePath != null) {
+        buffer.save(sequencePath+"-"+nfs(sequenceIndex, 4)+".png");
+        sequenceIndex++;
+      }
+      if (quick) buffer = src.copy();
+      buffer = GUI.operations.sort(buffer);
     }
+
     break;
   case "batch":
     if (batchFileList.size()>0) {
-      String filePath = batchFileList.get(frameIndex).getAbsolutePath();
-      PImage frame = loadImage(filePath);
-      if (width != frame.width || height != frame.height) {
-        surface.setSize(frame.width, frame.height);
-      }
+      File file = batchFileList.get(frameIndex);
+      String filePath = file.getAbsolutePath();
+      openImage(file);
+
       if (automate) {
         applyAutomation(frameIndex);
       } else if (jitter) {
         applyJitter();
       }
-      sorted = alphaOnly ? GUI.operations.sortAlpha(frame) : GUI.operations.sort(frame);
-      image(sorted, 0, 0);
+
+      //sorted = alphaOnly ? GUI.operations.sortAlpha(frame) : GUI.operations.sort(frame);
+      //image(sorted, 0, 0);
+
       if (play) {
         if (batch) sorted.save(batchDirectory+"/sorted/"+nf(frameIndex, 4)+".png");
         GUI.frameIncrement();
@@ -136,7 +150,7 @@ void applyAutomation(int _frameIndex) {
   for (int i = 0; i < GUI.operations.sortOperations.size(); i++) {
 
     if (GUI.operations.sortOperations.get(i).rgbMode) {
-      for(int ch = 0 ; ch < 3 ; ch++){
+      for (int ch = 0; ch < 3; ch++) {
         float rmin = automationGroup.getKeyFrameSet(i, "rmin").getValue(_frameIndex);
         float rmax = automationGroup.getKeyFrameSet(i, "rmax").getValue(_frameIndex);
         float gmin = automationGroup.getKeyFrameSet(i, "gmin").getValue(_frameIndex);
@@ -147,7 +161,6 @@ void applyAutomation(int _frameIndex) {
         GUI.operations.sortOperations.get(i).rgbThresholds[1].setRangeValues(gmin, gmax);
         GUI.operations.sortOperations.get(i).rgbThresholds[2].setRangeValues(bmin, bmax);
       }
-      
     } else {
       _min = automationGroup.getKeyFrameSet(i, "min").getValue(_frameIndex);
       _max = automationGroup.getKeyFrameSet(i, "max").getValue(_frameIndex);

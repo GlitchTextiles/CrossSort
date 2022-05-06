@@ -38,13 +38,59 @@ public void inputSelection(File input) {
     println("Window was closed or the user hit cancel.");
   } else {
     println("User selected " + input.getAbsolutePath());
-    src = loadImage(input.getAbsolutePath());
-    buffer = src.copy();
-    surface.setSize(src.width, src.height);
+    openImage(input);
     mode = "single";
-    GUI.cp5.getController("quick_sort").show();
   }
 }
+
+void openImage(File _file) {
+  if (_file.exists()) {
+    try {
+      srcHDR = ImageIO.read(_file);
+    } 
+    catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    if (srcHDR.getType() == BufferedImage.TYPE_CUSTOM) {
+      println("TYPE_CUSTOM");
+      bufferHDR= srcHDR.getSubimage(0,0,srcHDR.getWidth(),srcHDR.getHeight());
+      srcHDR_cm = srcHDR.getColorModel();
+      srcHDR_wr = srcHDR.getRaster();
+      GUI.cp5.getController("quick_sort").setValue(1);
+      GUI.cp5.getController("quick_sort").hide();
+      hdr = true;
+    } else {
+      src = bufferedImageToPImage(srcHDR);
+      if (src != null) {
+        buffer = src.copy();
+        GUI.cp5.getController("quick_sort").show();
+        hdr = false;
+      } else {
+        println("Image failed to load");
+      }
+    }
+    if (hdr) {
+      if (width != srcHDR.getWidth() || height != srcHDR.getHeight()) {
+        surface.setSize(srcHDR.getWidth(), srcHDR.getHeight());
+      }
+    } else {
+      if (width != src.width || height != src.height) {
+        surface.setSize(src.width, src.height);
+      }
+    }
+  } else {
+    println("invalid file: "+_file.getAbsolutePath());
+  }
+}
+
+void saveHDR(BufferedImage _image, File _file){
+    try {
+      ImageIO.write(_image, "png", _file);
+    }
+    catch (IOException e) {
+    }
+  }
 
 public void open_batch_folder() {
   selectFolder("Select a folder to batch process: ", "batchFolderSelection");
