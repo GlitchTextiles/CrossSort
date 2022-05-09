@@ -30,7 +30,7 @@
 Comparator<double[]> arrayComparator = new Comparator<double[]>() {
   @Override
     public int compare(double[] o1, double[] o2) {
-    return compareDoubleArrays(o1,o2);
+    return compareDoubleArrays(o1, o2);
   }
 };
 
@@ -105,6 +105,44 @@ float pixelRGBAvg(double[] _pixel) {
     sum += (float) _pixel[i];
   }
   return sum/(float)_pixel.length;
+}
+
+////////////////////////////////////////////////////////////////
+// converting from double[] to long to double[] as well as compariso e.g. ARGB valuesn
+
+int comparePixelThreshold(double[] _pixel, long _threshold) {
+  long longPixel = longFromPixel(_pixel);
+  if (longPixel == _threshold) {
+    return 0;
+  } else if ( longPixel < _threshold) {
+    return -1;
+  } else if ( longPixel > _threshold) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+long longFromPixel(double[] _pixel) {
+  if (_pixel.length == 3) {
+    long longPixel = 0 ;
+    for (int i = 0; i < _pixel.length; i++) {
+      longPixel += (long)_pixel[i] * (int)pow(2, (_pixel.length-1-i)*16);
+    }
+    return longPixel;
+  } else {
+    return 0;
+  }
+}
+
+double[] pixelFromLong(long _longPixel) {
+  double[] pixel = new double[3];
+  pixel[0] = _longPixel / (int)pow(2, 32);
+  _longPixel -= (long) (pixel[0] * int(pow(2, 32)));
+  pixel[1] = _longPixel / (int)pow(2, 16);
+  _longPixel -= (long) (pixel[1] * int(pow(2, 16)));
+  pixel[2] = _longPixel;
+  return pixel;
 }
 
 ////////////////////////////////////////////////////////////////

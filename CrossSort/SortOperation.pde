@@ -386,7 +386,6 @@ public class SortOperation {
 
   void sortPixels (WritableRaster _image, ArrayList<Integer> _mask) {
     double[][] px_image;
-    double[] sample;
     int buffer_size = 0;
     ArrayList<Integer> _maskStrip;
     int x = 0;
@@ -746,26 +745,25 @@ public class SortOperation {
   }
 
   double[][] sortPixelArray(double[][] _pxArray, ArrayList<Integer> _mask) {
-    int min, max;
     if (this.rgbMode) {
       int[] channel;
       channel = new int[_pxArray.length];
       for (int ch = 0 ; ch < _pxArray[0].length; ch++) {
         for (int i = 0; i < _pxArray.length; i++) channel[i] = (int) _pxArray[i][ch];
-        min = int(rgbThresholds[ch].getArrayValue(0) * pow(2, 16));
-        max = int(rgbThresholds[ch].getArrayValue(1) * pow(2, 16));
+        int min = int(rgbThresholds[ch].getArrayValue(0) * pow(2, 16));
+        int max = int(rgbThresholds[ch].getArrayValue(1) * pow(2, 16));
         channel = thresholdSort(min, max, channel, _mask);
         for (int i = 0; i < _pxArray.length; i++) _pxArray[i][ch] = (double) channel[i];
       }
     } else {
-      min = int(threshold.getArrayValue(0) * pow(2, 16));
-      max = int(threshold.getArrayValue(1) * pow(2, 16));
+      long min = (long)(threshold.getArrayValue(0) * (pow(2, 48)-1));
+      long max = (long)(threshold.getArrayValue(1) * (pow(2, 48)-1));
       _pxArray = thresholdSort(min, max, _pxArray, _mask);
     }
     return _pxArray;
   }
   
-  double[][] thresholdSort(int _min, int _max, double[][] _pixels, ArrayList<Integer> _maskStrip) {
+  double[][] thresholdSort(long _min, long _max, double[][] _pixels, ArrayList<Integer> _maskStrip) {
     int in = 0;
     int out = 0;
     boolean in_flag = false;
@@ -782,7 +780,8 @@ public class SortOperation {
 
     // gather Samples
     for (int i = 0; i < _pixels.length; ++i) {    
-      float pixel = pixelRGBAvg(_pixels[i]); // strip alpha layer
+      long pixel = longFromPixel(_pixels[i]); // strip alpha layer
+
       // switch for in and out point logic
       switch(this.threshold_mode) {
       case 0: // below min - in: <= min, out: > min
